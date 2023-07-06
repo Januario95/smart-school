@@ -1,0 +1,649 @@
+{% extends "baseStudent.html" %}
+{% load static %}
+{% load format_words %}
+
+{% block title %}
+	<title>Notas</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-around;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+		.right-section {
+			width: 68%;
+			display: flex;
+			flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 40px;
+            border: 1px solid #f6f6f7;
+			padding: 20px;
+		}
+		.info-section {
+			width: 80%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+		}
+		.row-section {
+			width: 80%;
+			max-width: 350px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.row-section .row-title {
+			font-size: 20px;
+			border-bottom: 2px solid #46ACC2;
+			margin-bottom: 10px;
+		}
+		.row-section div {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.row-section div span {
+			font-size: 13px;
+			margin-bottom: 6px;
+		}
+		.filter-section {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+            border-bottom: 3px solid #46ACC2;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+		}
+        .filter-section .option {
+            padding: 8px 12px;
+            background-color: #f6f6f7;
+            list-style: none;
+            color: black;
+			font-size: 13px;
+			text-decoration: none;
+        }
+        .filter-section .por-lista {
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+			border-right: 1px solid #e4e2e2;
+        }
+        .filter-section .qr-code { 
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+		.student-marks {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.student-marks .result-obs {
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+		.tr-tbody td {
+			text-align: center;
+		}
+        .attendance-by-list,
+        .attendance-result {
+			width: 90%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.attendance-by-list,
+		.qrcode-title {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+            margin: 10px 2px 14px 2px;
+		}
+		.form-filter .form-row {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter .form-row label {
+			font-size: 13px;
+		}
+        .take-attendance-div {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0px 3px 0px;
+        }
+        .take-attendance-div #id_take_attendance {
+            margin-right: 5px;
+        }
+        .take-attendance-div #id_take_attendance,
+        .take-attendance-div .take-attendance-btn {
+            width: 130px;
+        }
+        .trow-tbody {
+            border-bottom: 1px solid #ccc;
+        }
+
+		
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+
+
+		
+		select,
+		input[type="text"],
+		input[type="file"],
+		input[type="submit"],
+        .take-attendance-btn {
+            height: 26px;
+            width: 100%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"],
+        .take-attendance-btn {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 95%;
+			margin-top: 15px;
+			padding: 20px;
+			border-radius: 30px;
+			margin-bottom: 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section h4 {
+			margin: 0px 0px 10px 0px;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section th,
+		.result-section td {
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.row {
+			width: 15%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.row label {
+			font-size: 12px;
+		}
+		.student-details {
+			font-weight: normal;
+			text-align: center;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			.student-page .left-section {
+				
+			}
+			.student-page .left-section .students-link {
+				height: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section {
+				width: 100%;
+				align-items: flex-start;
+				justify-content: flex-start;
+			}
+            .info-section {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+		}
+		.no-result {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+		}
+
+		/* Student details styles */
+		.student-row-detail {
+			width: 260px;
+			display: flex;
+			flex-direction: column;
+			margin-bottom: 20px;
+		}
+		.header-title {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 2px solid teal;
+			padding-bottom: 3px;
+			margin-bottom: 6px;
+		}
+		.profile-img {
+			width: 100px;
+			height: 100px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-bottom: 5px;
+			/*
+			background-image: url("/media/{{ student.profile_pic }}");
+			background-repeat: no-repeat;
+			background-size: cover;
+			border-radius: 50%;
+			padding: 3px;
+			border: 1px solid #ccc;
+			transition: all 0.2s;
+			*/
+		}
+		.profile-img:hover {
+			/* background-image: url("{% static 'profile_image2_removebg.png' %}"); 
+			padding: 0px;
+			border: none;
+			transform: scale(1.13);*/
+		}
+		.profile-img img {
+			width: 100%;
+			height: 100%;
+			max-height: 120px;
+			max-width: 120px;
+			border-radius: 50%;
+			padding: 3px;
+			border: 1px solid #ccc;
+			transition: all 0.2s;
+			/*
+			box-shadow: 0px 6px 5px #ccc;
+			-moz-box-shadow: 0px 6px 5px #ccc;
+			-webkit-box-shadow: 0px 6px 5px #ccc;
+			*/
+		}
+		.profile-img img:hover {
+			padding: 0px;
+			border: none;
+			transform: scale(1.02);
+		}
+		.row-detail-header {
+			padding: 0px;
+			margin: 0px;
+			font-size: 20px;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+
+		/* Student School details */
+		.student-semester-details {
+			margin-bottom: 15px;
+		}
+		.student-personal-row {
+			margin-bottom: 25px;
+		}
+		.row-personal-header {
+			padding: 0px;
+			margin: 0px 0px 5px 0px;
+			text-align: center;
+			font-size: 17px;
+		}
+		.student-personal-left {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			margin-top: 15px;
+		}
+		.student-personal-left span {
+			font-size: 14px;
+		}
+		.student-name-header {
+			margin: 10px 0px 0px 0px;
+			padding: 0px;
+			font-size: 25px;
+		}
+		.ver-detalhes,
+		.ver-presenca {
+			cursor: pointer;
+			border: 1px solid #26a2ad;
+			border-radius: 16px;
+			font-size: 11px;
+			padding: 3px 5px;
+			background-color: #46ACC2;
+			color: white;
+			transition: all 0.15s;
+		}
+		.ver-detalhes:active, .ver-presenca:active {
+			transform: scale(1.07);
+		}
+		.btn, input[type="submit"],
+        .take-attendance-btn {
+			transition: all 0.15s;
+			color: white;
+			background-color: #46ACC2;
+		}
+		.btn:active, input[type="submit"]:active {
+			transform: scale(1.05);
+			border: none;
+			outline: none;
+		}
+		textarea {
+            height: 56px;
+            width: 100%;
+			min-width: 90px;
+			max-width: 250px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			resize: none;
+        }
+		.send-message-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+		}
+		.send-message-row .btn {
+			margin-top: 7px;
+		}
+		.mensages-sent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-attendance {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-attendance-overall {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.student-test-mark {
+			margin-top: 10px;
+		}
+		.highlight-semester {
+			background-color: #f1eaea;
+		}
+		.student-test-marks {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.parent-messages-sent {
+			width: 100%;
+		}
+        .semester-info-div {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            padding: 10px;
+            border-radius: 35px;
+        }
+        .semester-info {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .row-loader {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.loader {
+			display: none;
+		  	border: 16px solid #f3f3f3;
+		  	border-radius: 50%;
+		  	border-top: 16px solid #3498db;
+		  	width: 80px;
+		  	height: 80px;
+		  	-webkit-animation: spin 1s linear infinite; /* Safari */
+		  	animation: spin 2s linear infinite;
+		}
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th {
+			font-size: 13px;
+		}
+		th,
+		td {
+			padding: 5px;
+		}
+		td {
+			font-size: 12px;
+		}
+        #myDiv {
+            min-width: 500px;
+            height: 370px;
+        }
+		
+        @media only screen and (max-width: 540px) {
+            #myDiv {
+                min-width: 350px;
+                height: 330px;
+            }
+        }
+	</style>
+{% endblock %}
+
+{% block further_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'student_app:student_profile' student.pk %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Dados Pessoais</span>
+			</a>
+			<a href="{% url 'student_app:student_update_profile' student.pk %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Actualizar conta</span>
+			</a>
+			<a href="#" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Dados Escolares</span>
+			</a>
+			<a href="#" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Outros</span>
+			</a>
+		</div>
+		<div class="right-section">
+			<div class="info-section">
+				<div class="student-row-detail student-row-detail-left">
+					<div class="header-title">
+						<h5 class="row-detail-header">Dados pessoais</h5>
+					</div>
+					<div class="profile-img">
+						<img src="/media/{{ student.profile_pic }}" alt="{{ student.fullname }}" title="{{ student.fullname }}">
+					</div>
+					<span><b>Primeiro nome:</b> {{ student.first_name }}</span>
+					<span><b>Outros nomes:</b> {{ student.last_name }}</span>
+					<span><b>Numero de BI:</b> {{ student.numero_de_bi }}</span>
+					<span><b>Genero:</b> {{ student.gender|format_gender }}</span>
+					<span><b>Email:</b> <a href="mailto:{{ student.email }}">{{ student.email }}</a></span>
+					<span><b>Data de nascimento:</b> {{ student.birth_date }}</span>
+					<span><b>Numero de telefone: </b>
+						<span>{{ student.phone_number }}</span>
+						<a href="tel:{{ student.phone_number }}" title="Ligar para {{ student.first_name }} {{ student.last_name }}">&phone;</a>
+					</span>
+				</div>
+				<div class="student-row-detail student-row-detail-right">
+					<div class="header-title">
+						<h5 class="row-detail-header">Endereço</h5>
+					</div>
+					<span><b>Provincia:</b> {{ student.province }}</span>
+					<span><b>Cidade:</b> {{ student.city }}</span>
+					<span><b>Bairro:</b> {{ student.bairro }}</span>
+					<span><b>Quarteirao:</b> {{ student.quarteirao }}</span>
+				</div>
+			</div>
+        </div>		
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		let urls1 = ['estudantes-detalhes', 'estudantes-todos', 'estudantes-notas', 'estudantes-presenca'];
+		let marks = document.querySelectorAll('.mark');
+		for (let mark of marks) {
+			if (parseFloat(mark.textContent) < 10) {
+				mark.style.color = 'red';
+				mark.style.fontWeight = 'bold';
+			} else {
+				mark.style.color = '#46ACC2';
+				mark.style.fontWeight = 'bold';
+			}
+		}
+
+
+		// checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls1) {
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-link-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-link-student');
+				}
+			}
+		}
+	</script>
+{% endblock %}
+

@@ -1,0 +1,94 @@
+{% extends "pages/admin/lista_de_estudantes.html" %}
+
+{% block title %}
+    <title>Detalhes de estudantes</title>
+{% endblock %}
+
+{% block inner_style %}
+{% endblock %}
+
+{% block student_form %}
+    <form method="post" class="filter-section">
+        <div class="row">
+            <label for="id_year">Year</label>
+            {{ form.year }}
+        </div>
+        <div class="row">
+            <label for="id_semester">Semester</label>
+            {{ form.semester }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a classe</label>
+            {{ form.classe }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a turma</label>
+            {{ form.turma }}
+        </div>
+        <div class="row">
+            <label for="id_gender">Genero</label>
+            {{ form.gender }}
+        </div>
+        <div class="row">
+            {% csrf_token %}
+            <label style="color: #F6FBFB;">.</label>
+            <input type="submit" class="btn" value="Pesquisar">
+        </div>
+    </form>
+{% endblock %}
+
+{% block student_info %}
+    <div class="result-section">
+        {% block student_details %}
+            {% if students %}
+                <h4>
+                    Notas de Estudantes 
+                    {% if gender_name == 'masculino' %}
+                        (Homens)
+                    {% elif gender_name == 'feminino' %}
+                        (Mulheres)
+                    {% endif %} 
+                    da {{ classe_name }} Turma {{ turma_name }},
+                    {{ semester_name }} Semestre de {{ year_name }}
+                </h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="border-top-left-radius:35px;border-bottom-left-radius:35px;">#</th>
+                            <th rowspan="2" style="text-align:center;">Nome</th>
+                            <th colspan="{{ nr_of_subjects }}" style="text-align:center;border-bottom:1px solid #ccc;">Disciplinas</th>
+                            <th rowspan="2" style="text-align:center;border-top-right-radius:35px;border-bottom-right-radius:35px;">Media Final</th>
+                        </tr>
+						<tr>
+							{% for subj in subjects_names %}
+								<th>{{ subj }}</th>
+							{% endfor %}
+						</tr>
+                    </thead>
+                    <tbody>
+                        {% for student in semester_data  %}
+                            <tr class="tr-tbody" title="Clique para sublinhar de {{ student.student_fullname }}">
+                                <td style="text-align:center;">{{ forloop.counter }}</td>
+                                <td style="text-align:left;padding-left:20px;">
+                                    <a href="{% url 'app2:student_personal_details' student.student_id %}"
+                                    title="Clique para ver detalhes de {{ student.student_fullname }}">
+                                        {{ student.student_fullname }}
+                                    </a>
+                                </td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_ingles }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_portugues }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_biologia }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_quimica }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_fisica }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.avg_matematica }}</td>
+                                <td style="text-align:center;" class="mark">{{ student.student_final_avg }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-result">Nao ha resultados para a pesquisa.</p>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

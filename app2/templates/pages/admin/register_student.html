@@ -1,0 +1,595 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Lista de Professores</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-evenly;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+		.right-section {
+			width: 68%;
+			display: flex;
+			flex-direction: column;
+            margin-bottom: 10px;
+		}
+
+
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			.filter-section {
+				flex-direction: column;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section {
+				width: 100%;
+			}
+		}
+
+
+        .login-div {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .teacher-register-title {
+            padding: 0x;
+            margin: 0px 0px 5px 0px;
+        }
+        .box-section {
+            width: 100%;
+            min-width: 410px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            background-color: white;
+            border-radius: 20px;
+            padding: 10px;
+        }
+        .teacher-personal-details,
+        .teacher-academic-details,
+        .teacher-school-details {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: 10px;
+        }
+        .form-row .row-title {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+            font-weight: bold;
+            width: 100%;
+            height: 35px;
+            color: white;
+            background-color: #46ACC2;
+            text-align: center;
+            border-radius: 16px;
+           
+        }
+        .form-row .row {
+            margin: 4px;
+        }
+        .student-personal-details-info,
+        .student-academic-details-info,
+        .student-father-details-info,
+        .student-mother-details-info {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: 10px;
+        }
+        .box-section .row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .box-section .row label {
+            font-size: 11px;
+        }
+        input[type="text"],
+        input[type="email"] {
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            height: 26px;
+            padding-left: 6px;
+            text-align: center;
+        }
+        input[type="password"] {
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            height: 26px;
+            padding-left: 6px;
+            text-align: center;
+        }
+        select,
+        input[type="submit"],
+        input[type="date"] {
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            height: 30px;
+            width: 167px;
+            text-align: center;
+        }
+        input[type="submit"] {
+            cursor: pointer;
+            color: white;
+            background-color: #46ACC2;
+        }
+        #id_password {
+            border: none !important;
+            width: 140px !important;
+        }
+        .toggle-symbol {
+            height: 0px;
+            width: 0px;
+            rotate: 90deg;
+            padding: 0px;
+            margin-bottom: 7px;
+        }
+        .hide-show {
+            display: none;
+        }
+        .add-remove-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 26px;
+            cursor: pointer;
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: bold;
+            background-color: #ccc;
+            transition: all .2s;
+        }
+        .add-remove-btn:active {
+            transform: scale(1.05);
+        }
+        .add-remove-subject {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .error {
+            background-color: red;
+            border-radius: 16px;
+            padding: 4px;
+            margin: 5px;
+            font-size: 13px;
+            font-style: italic;
+        }
+        .hightlight-input-field {
+            border: 2px solid red;
+        }
+        .password-div {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			background: white;
+            border: 1px solid #ccc;
+			border-radius: 16px;
+		}
+		.fa {
+			margin-right: 10px;
+			cursor: pointer;
+			font-size: 15px;
+		}
+		.chBox2 {
+			display: none;
+		}
+        @media only screen and (max-width: 600px) {
+            .student-personal-details-info,
+            .student-academic-details-info,
+            .teacher-school-details-info {
+                flex-direction: column;
+            }
+        }
+	</style>
+{% endblock %}
+
+{% block inner_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'app2:detalhes_do_estudante' %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Lista de estudantes</span><span style="color:teal;font-weight:bold;">☰</span>
+			</a>
+			<a href="{% url 'app2:all_students' %}" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Todos estudantes</span><span style="color:teal;font-weight:bold;">☰</span>
+			</a>
+			<a href="{% url 'app2:notas_de_estudantes' %}" class="estudantes-notas students-link" title="Click para ver notas de estudantes">
+				<span>Notas de estudantes</span><span>✍</span>
+			</a>
+			<a href="{% url 'app2:presenca_de_estudantes' %}" class="estudantes-presenca students-link" title="Click para ver lista de presenças">
+				<span>Presenca nas aulas</span><span>✅</span>
+			</a>
+			<a href="{% url 'app2:register_student' %}" class="estudantes-registar" title="Click para registar professor">
+				<span>Registar Estudante</span>
+			</a>
+			<div class="section-indicator">
+				<h1>Estudantes</h1>
+			</div>
+		</div>
+		<div class="right-section">
+			<div class="login-div">
+                <h3 class="teacher-register-title" style="text-align:center;">Registar Estudante</h3>
+                <form method="post" class="box-section">
+                    {% if message%}
+                        <span class="error">
+                            {{ message }}
+                            <a href="#">{{ student.fullname }}</a>
+                        </span>
+                    {% endif %}
+                    <div class="teacher-personal-details form-row">
+                        <div class="row-title personal-details-btn">
+                            <span>Dados Pessoais</span>
+                            <!--
+                            <div class="toggle-symbol">&#10095;</div>
+                            -->
+                        </div>
+                        <div class="student-personal-details-info">
+                            <div class="row">
+                                <label for="id_username">Nome de usuario</label>
+                                {{ form.username }}
+                            </div>
+                            <div class="row">
+                                <label for="id_password">Senha</label>
+                                <div class="password-div">
+                                    {{ form.password }}
+                                    <i class="fa chBox">&#xf06e;</i>
+                                    <i class="fa fa-eye-slash chBox2" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label for="id_confirm_password">Repetir senha</label>
+                                {{ form.confirm_password }}
+                            </div>
+                            <div class="row">
+                                <label for="id_email">Email</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="row">
+                                <label for="id_first_name">Primeiro nome</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_last_name">Outros nomes</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_ic_number">Numero de BI</label>
+                                {{ form.ic_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_gender">Genero</label>
+                                {{ form.gender }}
+                            </div>
+                            <div class="row">
+                                <label for="id_birth_date">Data de nascimento</label>
+                                {{ form.birth_date }}
+                            </div>
+                            <div class="row">
+                                <label for="id_phone_number">Numero de telefone</label>
+                                {{ form.phone_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_province">Provincia de residencia</label>
+                                {{ form.province }}
+                            </div>
+                            <div class="row">
+                                <label for="id_city">Cidade de residencia</label>
+                                {{ form.city }}
+                            </div>
+                            <div class="row">
+                                <label for="id_bairro">Bairro de residencia</label>
+                                {{ form.bairro }}
+                            </div>
+                        </div>   
+                    </div>
+                    <div class="teacher-academic-details form-row">
+                        <div class="row-title academic-details-btn">
+                            <span>Dados Escolares</span>
+                            <!--
+                            <div class="toggle-symbol">&#10095;</div>
+                            -->
+                        </div>
+                        <div class="student-academic-details-info">
+                            <div class="row">
+                                <label for="id_year">Ano</label>
+                                {{ form.year }}
+                            </div>
+                            <div class="row">
+                                <label for="id_semester">Semestre</label>
+                                {{ form.semester }}
+                            </div>
+                            <div class="row">
+                                <label for="id_classe">Classe</label>
+                                {{ form.classe }}
+                            </div>
+                            <div class="row">
+                                <label for="id_turma">Turma</label>
+                                {{ form.turma }}
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="student-father-details form-row">
+                        <div class="row-title father-details-btn">
+                            <span>Informacao do Pai</span>
+                        </div>
+                        <div class="student-father-details-info">
+                            <div class="row">
+                                <label for="id_father_first_name">Primeiro nome</label>
+                                {{ form.father_first_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_last_name">Outros nomes</label>
+                                {{ form.father_last_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_email">Email</label>
+                                {{ form.father_email }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_ic_number">Numero de BI</label>
+                                {{ form.father_ic_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_gender">Genero</label>
+                                {{ form.father_gender }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_phone_number">Numero de telefone</label>
+                                {{ form.father_phone_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_profession">Profissao</label>
+                                {{ form.father_profession }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_province">Provincia de residencia</label>
+                                {{ form.father_province }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_city">Cidade de residencia</label>
+                                {{ form.father_city }}
+                            </div>
+                            <div class="row">
+                                <label for="id_father_bairro">Bairro de residencia</label>
+                                {{ form.father_bairro }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="student-mother-details form-row">
+                        <div class="row-title mother-details-btn">
+                            <span>Informacao do Pai</span>
+                        </div>
+                        <div class="student-mother-details-info">
+                            <div class="row">
+                                <label for="id_mother_first_name">Primeiro nome</label>
+                                {{ form.mother_first_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_last_name">Outros nomes</label>
+                                {{ form.mother_last_name }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_email">Email</label>
+                                {{ form.mother_email }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_ic_number">Numero de BI</label>
+                                {{ form.mother_ic_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_gender">Genero</label>
+                                {{ form.mother_gender }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_phone_number">Numero de telefone</label>
+                                {{ form.mother_phone_number }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_profession">Profissao</label>
+                                {{ form.mother_profession }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_province">Provincia de residencia</label>
+                                {{ form.mother_province }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_city">Cidade de residencia</label>
+                                {{ form.mother_city }}
+                            </div>
+                            <div class="row">
+                                <label for="id_mother_bairro">Bairro de residencia</label>
+                                {{ form.mother_bairro }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        {% csrf_token %}
+                        <input type="submit" class="teacher-register-btn" value="Registar">
+                    </div>
+                </form>
+            </div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		let marks = document.querySelectorAll('.mark');
+        for (let mark of marks) {
+			mark.style.fontWeight = 'bold';
+			if (parseFloat(mark.textContent) < 9) {
+				mark.style.color = 'red';
+			} else {
+				mark.style.color = 'teal';
+			}
+        }
+
+        let idUsername = document.querySelector('#id_username');
+		id_username.focus();
+		let idPassword = document.querySelector('#id_password');
+        let idPasswordConfirm = document.querySelector('#id_confirm_password');
+		let chBox = document.querySelector('.chBox');
+		let chBox2 = document.querySelector('.chBox2');
+
+		showHidePassword(chBox, chBox2);
+		showHidePassword(chBox2, chBox);
+
+		function showHidePassword(tag1, tag2) {
+			tag1.addEventListener('click', e => {
+				tag1.style.display = 'none';
+				tag2.style.display = 'block';
+				togglePasswordVisibility();
+			});
+		}
+
+		function togglePasswordVisibility() {
+			togglePasswordTag(idPassword);
+            togglePasswordTag(idPasswordConfirm);
+		}
+
+        function togglePasswordTag(tag) {
+            if (tag.type === 'password') {
+				tag.type = 'text';
+			} else {
+				tag.type = 'password';
+			}
+        }
+
+
+		let allTrs = document.querySelectorAll('.tr-tbody');
+		for (let tr of allTrs) {
+			tr.addEventListener('click', e => {
+				if (tr.classList.contains('highlight-tr')) {
+					tr.classList.remove('highlight-tr');
+				} else {
+					tr.classList.add('highlight-tr');
+				}
+			});
+		}
+
+		urls1 = ['estudantes-detalhes', 'estudantes-presenca'];
+		
+		checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls1) {
+				// console.log(localhost + url, localhost + url + '/' === window.location.href)
+				// console.log(document.querySelector(`.${url}`));
+				// console.log(localhost + url, localhost + url + '/')
+
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-link-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-link-student');
+				}
+			}
+		}
+
+        let teacher_exists = "{{ teacher_exists }}";
+        teacher_exists = true ? teacher_exists == 'True' : false;
+        let same_password = "{{ same_password }}";
+        same_password = true ? same_password == 'True' : false;
+
+        let email = document.getElementById('id_email');
+        if (teacher_exists) {
+            $(window).scrollTop(0);
+            email.focus();
+            // email.classList.add('hightlight-input-field');
+            email.style.border = '2px solid red';
+        } else {
+            // email.classList.remove('hightlight-input-field');
+            email.style.border = '1px solid #ccc';
+        }
+
+        
+        let password = document.getElementById('id_password');
+        let confirm_password = document.getElementById('id_confirm_password');
+        if (same_password) {
+            $(window).scrollTop(0);
+            password.focus();
+            password.style.border = '2px solid red';
+            confirm_password.style.border = '2px solid red';
+        } else {
+            password.style.border = '1px solid #ccc';
+            confirm_password.style.border = '1px solid #ccc';
+        }
+	</script>
+{% endblock %}
+

@@ -1,0 +1,225 @@
+{% extends "baseTeacher.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Actualizar Presença de Professores</title>
+{% endblock %}
+
+
+{% block attendance_result_section %}
+	<form method="post" class="filter-section">
+		<div class="row">
+			<label for="id_year">Year</label>
+			{{ form.year }}
+		</div>
+		<div class="row">
+			<label for="id_semester">Semester</label>
+			{{ form.semester }}
+		</div>
+		<div class="row">
+			<label value="default">Selecione a classe</label>
+			{{ form.classe }}
+		</div>
+		<div class="row">
+			<label value="default">Selecione a turma</label>
+			{{ form.turma }}
+		</div>
+		<div class="row">
+			{% csrf_token %}
+			<label style="color: #F6FBFB;">.</label>
+			<input type="submit" class="btn" value="Pesquisar">
+		</div>
+	</form>
+
+	<div class="result-section">
+		{% if teachers %}
+			<h4>
+				Actualizar Presenças de Professores nas Aulas
+			</h4>
+			<table>
+				<thead>
+					<tr>
+						<th style="border-top-left-radius:35px;border-bottom-left-radius:35px;">#</th>
+						<th style="text-align:center;">Nome</th>
+						<th style="text-align:center;">Disciplina</th>
+						<th style="text-align:center;">Dia da aula</th>
+						<th style="text-align:center;">
+							Hora da aula
+						</th>
+						<th style="text-align:center;">Lecionou</th>
+						<th style="text-align:center;border-top-right-radius:35px;border-bottom-right-radius:35px;">
+							Actualizar
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for teacher in teachers  %}
+						<tr class="tr-tbody">
+							<td style="text-align:center;">{{ forloop.counter }}</td>
+							<td>
+								{{ teacher.fullname }}
+							</td>
+							<td>
+								<select id="teacher-subject-{{ teacher.pk }}" class="teacher-subject">
+									{% for subject in teacher.subjects %}
+										<option value="{{ subject }}">{{ subject }}</option>
+									{% endfor %}
+								</select>
+							</td>
+							<!--
+							<td>
+								<input type="datetime-local" id="class-datetime-{{ teacher.pk }}" class="class-datetime">
+							</td>
+							-->
+							<td>
+								<input type="date" id="class-date-{{ teacher.pk }}" class="class-date">
+							</td>
+							<td>
+								<input type="time" id="class-time-{{ teacher.pk }}" class="class-time">
+							</td>
+							<td class="student-details">
+								<select id="attended-class-{{ teacher.pk }}" class="attended-class">
+									<option value="0">Nao</option>
+									<option value="1">Sim</option>
+								</select>
+							</td>
+							<td>
+								<button 
+									onclick="updateTeacherAttendance('{{ teacher.fullname }}', '{{ teacher.pk }}', '{{ classe_name }}', '{{ turma_name }}')"
+								>Actualizar</button>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		{% else %}
+			<span class="no-result">
+				{% if year_name %} 
+					Nao existem professores alocados
+					{% if classe_name %} na {{ classe_name }}{% endif %}
+					{% if turma_name %} Turma {{ turma_name }}{% endif %}
+					{% if semester_name %}no {{ semester_name }} Semestre{% endif %}
+						de {{ year_name }}
+				{% endif %}
+			</span>
+		{% endif %}
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>	
+		urls2 = ['professores-actualizar-presenca', 'professores-ver-presenca'];
+		// console.log(urls2);
+
+		checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls2) {
+				// console.log(localhost + url, localhost + url + '/' === window.location.href)
+				// console.log(document.querySelector(`.${url}`));
+				// console.log(localhost + url, localhost + url + '/')
+
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-teacher-attendance-link');
+					// let header = document.querySelector('.profesores');
+					// header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-teacher-attendance-link');
+				}
+			}
+		}
+
+		function formatDate(time) {
+			if (parseInt(time) < 10) {
+				time = '0' + time;
+			}
+			return time;
+		}
+
+		/*
+		let classDateTimes = document.querySelectorAll('.class-datetime');
+		for (let classDateTime of classDateTimes) {
+			let today = new Date();
+			today_ = today.getFullYear() + '-' + formatDate(today.getMonth()) + '-' + formatDate(today.getDate());
+			now = formatDate(today.getHours()) + ':' + formatDate(today.getMinutes()) + ':' + formatDate(today.getSeconds());
+			classDateTime.value = today_ + 'T' + now;
+		}
+		*/
+
+		
+		let classDates = document.querySelectorAll('.class-date');
+		for (let classDate of classDates) {
+			let today = new Date();
+			today = today.getFullYear() + '-' + formatDate(parseInt(today.getMonth()) + 1) + '-' + formatDate(today.getDate());
+			classDate.value = today;
+		}
+		
+
+		let classTimes = document.querySelectorAll('.class-time');
+		for (let classTime of classTimes) {
+			let today = new Date();
+			now = formatDate(today.getHours()) + ':' + formatDate(today.getMinutes()) + ':' + formatDate(today.getSeconds());
+			classTime.value = now;
+		}
+
+		let MONTHS = {
+			'00': 'Janeiro', '01': 'Fevereiro',  '02': 'Março', 
+			'03': 'Abril', '04': 'Maio', '05': 'Junho', 
+			'06': 'Julho',  '07': 'Augusto', '08': 'Setembro',
+			'09': 'Outubro', '10': 'Novembro','11': 'Dezembro'
+		}
+
+		function formatDateAttended(date) {
+			date = date.split('-');
+			let year, month, day;
+			year = date[0];
+			month = MONTHS[date[1]]
+			day = date[2];
+			return day + ' de ' + month + ' de ' + year;
+		}
+
+		function updateTeacherAttendance(teacherName, teacherPk, classeName, turmaName) {
+			let classDate = document.getElementById(`class-date-${ teacherPk }`);
+			let classTime = document.getElementById(`class-time-${ teacherPk }`);
+			let attendedClass = document.getElementById(`attended-class-${ teacherPk }`);
+			let subjectName = document.getElementById(`teacher-subject-${ teacherPk }`);
+
+			let attended;
+			if (parseInt(attendedClass.value) == 1) {
+				attended = 'deu';
+			} else {
+				attended = 'nao deu'
+			}
+			let text = `Confirma que o professor ${ teacherName } ${ attended } aulas no dia ${ formatDateAttended(classDate.value) } na disciplina de ${ subjectName.value }?`
+			let confirm_ = window.confirm(text);
+			// console.log(confirm_)
+
+			
+			fetch(`/capture_teacher_attendance_api/${teacherPk}/${classDate.value}/${classTime.value}/${attendedClass.value}/${classeName}/${turmaName}/${subjectName.value}/`)
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+				})
+				.catch(err => console.error(err));
+		}
+
+		//let allTrs = $('.tr-tbody');
+		//allTrs.click(function() {
+		//	this.toggleClass('hide-tr');
+		//})
+		/*
+		let allTrs = document.querySelectorAll('.tr-tbody');
+		for (let tr of allTrs) {
+			tr.addEventListener('click', e => {
+				if (tr.classList.contains('highlight-tr')) {
+					tr.classList.remove('highlight-tr');
+				} else {
+					tr.classList.add('highlight-tr');
+				}
+			});
+		}
+		*/
+	</script>
+{% endblock %}
+

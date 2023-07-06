@@ -1,0 +1,623 @@
+{% extends "baseTeacher.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Notas</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-around;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+		.right-section {
+			width: 68%;
+			display: flex;
+			flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 40px;
+            border: 1px solid #f6f6f7;
+			padding: 20px;
+		}
+		.filter-section {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+            border-bottom: 3px solid #46ACC2;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+		}
+        .filter-section .option {
+            padding: 8px 12px;
+            background-color: #f6f6f7;
+            list-style: none;
+            color: black;
+			font-size: 13px;
+			text-decoration: none;
+        }
+        .filter-section .por-lista {
+            border-top-left-radius: 16px;
+            border-bottom-left-radius: 16px;
+			border-right: 1px solid #e4e2e2;
+        }
+        .filter-section .qr-code { 
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+		.student-marks {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.student-marks .result-obs {
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+		.tr-tbody td {
+			text-align: center;
+		}
+        .attendance-by-list,
+        .attendance-result {
+			width: 90%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.attendance-by-list,
+		.qrcode-title {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+            margin: 10px 2px 14px 2px;
+		}
+		.form-filter .form-row {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter .form-row label {
+			font-size: 13px;
+		}
+        .take-attendance-div {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0px 3px 0px;
+        }
+        .take-attendance-div #id_take_attendance {
+            margin-right: 5px;
+        }
+        .take-attendance-div #id_take_attendance,
+        .take-attendance-div .take-attendance-btn {
+            width: 130px;
+        }
+        .trow-tbody {
+            border-bottom: 1px solid #ccc;
+        }
+
+		
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+
+
+		
+		select,
+		input[type="text"],
+		input[type="submit"],
+        .take-attendance-btn {
+            height: 26px;
+            width: 100%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"],
+        .take-attendance-btn {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 95%;
+			margin-top: 15px;
+			padding: 20px;
+			border-radius: 30px;
+			margin-bottom: 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section h4 {
+			margin: 0px 0px 10px 0px;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section th,
+		.result-section td {
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.row {
+			width: 15%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.row label {
+			font-size: 12px;
+		}
+		.student-details {
+			font-weight: normal;
+			text-align: center;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			.student-page .left-section {
+				
+			}
+			.student-page .left-section .students-link {
+				height: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section {
+				width: 100%;
+			}
+		}
+		.no-result {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+		}
+
+		/* Student details styles */
+		.student-detail {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-info-section {
+			width: 90%;
+		}
+		.student-personal-detail {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-row-detail {
+			width: 330px;
+			display: flex;
+			flex-direction: column;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+
+		/* Student School details */
+		.student-semester-details {
+			margin-bottom: 15px;
+		}
+		.student-personal-row {
+			margin-bottom: 25px;
+		}
+		.row-personal-header {
+			padding: 0px;
+			margin: 0px 0px 5px 0px;
+			text-align: center;
+			font-size: 17px;
+		}
+		.student-personal-left {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			margin-top: 15px;
+		}
+		.student-personal-left span {
+			font-size: 14px;
+		}
+		.student-name-header {
+			margin: 10px 0px 0px 0px;
+			padding: 0px;
+			font-size: 25px;
+		}
+		.ver-detalhes,
+		.ver-presenca {
+			cursor: pointer;
+			border: 1px solid #26a2ad;
+			border-radius: 16px;
+			font-size: 11px;
+			padding: 3px 5px;
+			background-color: #46ACC2;
+			color: white;
+			transition: all 0.15s;
+		}
+		.ver-detalhes:active, .ver-presenca:active {
+			transform: scale(1.07);
+		}
+		.btn, input[type="submit"],
+        .take-attendance-btn {
+			transition: all 0.15s;
+			color: white;
+			background-color: #46ACC2;
+		}
+		.btn:active, input[type="submit"]:active {
+			transform: scale(1.05);
+			border: none;
+			outline: none;
+		}
+		textarea {
+            height: 56px;
+            width: 100%;
+			min-width: 90px;
+			max-width: 250px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			resize: none;
+        }
+		.send-message-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+		}
+		.send-message-row .btn {
+			margin-top: 7px;
+		}
+		.mensages-sent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-attendance {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-attendance-overall {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.student-test-mark {
+			margin-top: 10px;
+		}
+		.highlight-semester {
+			background-color: #f1eaea;
+		}
+		.student-test-marks {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.parent-messages-sent {
+			width: 100%;
+		}
+        .semester-info-div {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            padding: 10px;
+            border-radius: 35px;
+        }
+        .semester-info {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .row-loader {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.loader {
+			display: none;
+		  	border: 16px solid #f3f3f3;
+		  	border-radius: 50%;
+		  	border-top: 16px solid #3498db;
+		  	width: 80px;
+		  	height: 80px;
+		  	-webkit-animation: spin 1s linear infinite; /* Safari */
+		  	animation: spin 2s linear infinite;
+		}
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th {
+			font-size: 13px;
+		}
+		th,
+		td {
+			padding: 5px;
+		}
+		td {
+			font-size: 12px;
+		}
+        #myDiv {
+            min-width: 500px;
+            height: 370px;
+        }
+		
+        @media only screen and (max-width: 540px) {
+            #myDiv {
+                min-width: 350px;
+                height: 330px;
+            }
+        }
+	</style>
+{% endblock %}
+
+{% block further_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'teacher_app:teacher_marks' teacher.pk %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Adicionar notas</span>
+			</a>
+			<a href="{% url 'teacher_app:teacher_marks_view' teacher.pk %}" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Ver notas por disciplina</span>
+			</a>
+			<a href="{% url 'teacher_app:teacher_marks_all_view' teacher.pk %}" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Ver todas notas</span>
+			</a>
+		</div>
+		<div class="right-section">
+			<div class="filter-section">
+				<form method="post" class="form-filter" enctype="multipart/form-data">
+					<div class="form-row">
+						<label for="id_year">Ano</label>
+						{{ form.year }}
+					</div>
+					<div class="form-row">
+						<label for="id_semester">Semestre</label>
+						{{ form.semester }}
+					</div>
+					<div class="form-row">
+						<label for="id_classe">Classe</label>
+						{{ form.classe }}
+					</div>
+					<div class="form-row">
+						<label for="id_turma">Turma</label>
+						{{ form.turma }}
+					</div>
+					<div class="form-row">
+						<label for="id_subject">Disciplina</label>
+						{{ form.subject }}
+					</div>
+					<div class="form-row">
+						{% csrf_token %}
+						<label class="hide-dot">.</label>
+						<input type="submit" value="Pesquisar">
+					</div>
+				</form>
+			</div>
+            <div class="student-marks">
+				{% if has_marks %}
+					<span class="result-obs">
+						Notas de {{ subject_name }} dos alunos
+						 da {{ classe_name }}
+						 Turma {{ turma_name }},
+						 do {{ semester_name}} Semestre
+						 de {{ year_name }}
+					</span>
+					
+					<table>
+						<thead>
+							<tr>
+								<th style="border-top-left-radius:16px;border-bottom-left-radius:16px">#</th>
+								<th>Primeiro nome</th>
+								<th>Segundo nome</th>
+								{% for test in test_names %}
+									<th>{{ test }}</th>
+								{% endfor %}
+								<th style="border-top-right-radius:16px;border-bottom-right-radius:16px">Media</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for student in student_marks %}
+								<tr class="tr-tbody">
+									<td>{{ forloop.counter }}</td>
+									<td>{{ student.first_name }}</td>
+									<td>{{ student.last_name }}</td>
+									{% if student.Test_1 %}
+										<td class="mark">{{ student.Test_1 }}</td>
+									{% endif %}
+									{% if student.Test_2 %}
+										<td class="mark">{{ student.Test_2 }}</td>
+									{% endif %}
+									{% if student.Test_3 %}
+										<td class="mark">{{ student.Test_3 }}</td>
+									{% endif %}
+									{% if student.media %}
+										<td class="mark">{{ student.media }}</td>
+										{% endif %}
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% else %}
+					<span class="result-obs">
+						Nao existem notas de {{ subject_name }} dos alunos
+						da {{ classe_name }}
+						Turma {{ turma_name }},
+						do {{ semester_name}} Semestre
+						de {{ year_name }}
+					</span>
+				{% endif %}
+			</div>
+        </div>		
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		let urls1 = ['estudantes-detalhes', 'estudantes-todos', 'estudantes-notas', 'estudantes-presenca'];
+		let marks = document.querySelectorAll('.mark');
+		for (let mark of marks) {
+			if (parseFloat(mark.textContent) < 10) {
+				mark.style.color = 'red';
+				mark.style.fontWeight = 'bold';
+			} else {
+				mark.style.color = '#46ACC2';
+				mark.style.fontWeight = 'bold';
+			}
+		}
+
+
+		// checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls1) {
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-link-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-link-student');
+				}
+			}
+		}
+	</script>
+{% endblock %}
+

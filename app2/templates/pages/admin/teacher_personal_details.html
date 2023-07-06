@@ -1,0 +1,191 @@
+{% extends "pages/admin/teacher_details.html" %}
+{% load format_words %}
+
+{% block inner_style %}
+	<style>
+		.student-personal-detail {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+		}
+		.student-row-detail {
+			display: flex;
+			flex-direction: column;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+		.message-tr {
+			border-bottom: 1px solid #ccc;
+		}
+		.student-row-detail-messages {
+			
+		}
+		.student-row-detail-messages form {
+			margin: 0px 0px 10px 0px;
+		}
+		.mensages-sent {
+			overflow-y: scroll;
+			max-height: 140px;
+		}
+		input[type="date"] {
+			height: 26px;
+            width: 45%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+		}
+		.btn-2 {
+			width: 45% !important;
+		}
+		.btn-1 {
+			width: 100%;
+		}
+		#id_message {
+			max-width: 350px;
+		}
+		@media only screen and (max-width: 768px) {
+			.student-personal-detail {
+				justify-content: flex-start;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block student_data %}
+	<div class="student-personal-detail">
+		<div class="student-row-detail student-row-detail-left">
+			<h5 class="row-detail-header">Dados pessoais</h5>
+			<span>Primeiro nome: {{ teacher.first_name }}</span>
+			<span>Outros nomes: {{ teacher.last_name }}</span>
+			<span>Numero de BI: {{ teacher.numero_de_bi }}</span>
+			<span>Genero: {{ teacher.gender|format_gender }}</span>
+			<span>Email: <a href="mailto:{{ teacher.email }}">{{ teacher.email }}</a></span>
+			<span>Data de nascimento: {{ teacher.birth_date }}</span>
+			<span>Numero de telefone: 
+				<span>{{ teacher.phone_number }}</span>
+				<a href="tel:{{ teacher.phone_number }}" title="Ligar para {{ teacher.first_name }} {{ teacher.last_name }}">&phone;</a>
+			</span>
+		</div>
+		<div class="student-row-detail student-row-detail-right">
+			<h5 class="row-detail-header">Endereço</h5>
+			<span>Provincia: {{ teacher.province }}</span>
+			<span>Cidade: {{ teacher.city }}</span>
+			<span>Bairro: {{ teacher.bairro }}</span>
+			<span>Quarteirao: {{ teacher.quarteirao }}</span>
+		</div>
+		<div class="student-row-detail">
+			<h5 class="row-detail-header">Formacao Academica</h5>
+			{% with teacher.school_attended.all as school_attended %}
+				{% for school in school_attended %}
+					<span>Escola/Universidade: {{ school.name }}</span>
+					<span>Nivél académico: {{ school.degree }}</span>
+					<span>Curso: {{ school.major }}</span>
+					<span>Pais: {{ school.country }}</span>
+					<span>Cidade: {{ school.city }}</span>
+					<span>Inicio: {{ school.start_date }}</span>
+					<span>Término: {{ school.end_date }}</span>
+				{% endfor %}
+			{% endwith %}
+		</div>
+		<div class="student-row-detail student-row-detail-sent-messages">
+			<h5 class="row-detail-header">Enviar messagem para {{ teacher }}</h5>
+			<form method="POST">
+				<div class="send-message-row">
+					{{ form.phone_number }}
+				</div>
+				<div class="send-message-row">
+					{{ form.message }}
+				</div>
+				{% csrf_token %}
+				<div class="send-message-row">
+					<input type="submit" class="btn btn-1" name="send-message" value="Enviar">
+				</div>
+			</form>
+		</div>
+		<div class="student-row-detail student-row-detail-messages">
+			<h5 class="row-detail-header">Messagem enviadas</h5>
+			<form method="POST">
+				{{ form2.date }}
+				{% csrf_token %}
+				<input type="submit" class="btn btn-2" name="search-message" value="Pesquisar">
+			</form>
+			{% if messages %}
+				<div class="mensages-sent">
+					<table>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Message</th>
+								<th>Enviada em</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for message in messages %}
+								<tr class="message-tr">
+									<td>{{ forloop.counter }}</td>
+									<td>{{ message.message }}</td>
+									<td>{{ message.sent_at }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<span>Nao existe mensagens{% if today %} do dia {{ today }}{% endif %}</span>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let message = document.getElementById('id_message');
+		message.setAttribute('placeholder', 'Escreva a message aqui');
+		
+		let urls2 = ['professores-detalhes-dados-pessoais', 'professores-detalhes-dados-escolares',
+					 'professores-detalhes-disciplinas'];
+
+		let activeURL = window.location.href.split('/');
+		let activeUrlID = activeURL[4];
+		
+		checkActiveLink2();
+		function checkActiveLink2() {
+			for (let url of urls2) {
+				let u = localhost + url + `/${activeUrlID}/`;
+				u = u.split('/')[3]
+				u = u.split('detalhes')[0]
+				u += 'detalhes';
+				
+				let currentURL = document.querySelector(`.${url}`);
+				if (localhost + url + `/${activeUrlID}/` === window.location.href) {
+					currentURL.classList.add('active-sublink-student');
+					let header = document.querySelector('.professores');
+					header.classList.add('active-link');
+
+					let headerLeft = document.querySelector('.estudantes-detalhes');
+					headerLeft.classList.add('active-link-student');
+				} else {
+					currentURL.classList.remove('active-sublink-student');
+				}
+			}
+		}
+	</script>
+{% endblock %}

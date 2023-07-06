@@ -1,0 +1,89 @@
+{% extends "pages/admin/lista_de_estudantes.html" %}
+
+{% block title %}
+    <title>Detalhes de estudantes</title>
+{% endblock %}
+
+{% block inner_style %}
+{% endblock %}
+
+{% block student_form %}
+    <form method="post" class="filter-section">
+        <div class="row">
+            <label for="id_year">Year</label>
+            {{ form.year }}
+        </div>
+        <div class="row">
+            <label for="id_semester">Semester</label>
+            {{ form.semester }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a classe</label>
+            {{ form.classe }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a turma</label>
+            {{ form.turma }}
+        </div>
+        <div class="row">
+            <label for="id_gender">Genero</label>
+            {{ form.gender }}
+        </div>
+        <div class="row">
+            {% csrf_token %}
+            <label style="color: #F6FBFB;">.</label>
+            <input type="submit" class="btn" value="Pesquisar">
+        </div>
+    </form>
+{% endblock %}
+
+{% block student_info %}
+    <div class="result-section">
+        {% block student_details %}
+            {% if students %}
+                <h4>
+                    Lista de Estudantes
+                    {% if gender_name == 'masculino' %}
+                        (Homens)
+                    {% elif gender_name == 'feminino' %}
+                        (Mulheres)
+                    {% endif %}
+                    {% if classe_name %}da {{ classe_name }}{% endif %}
+                    {% if turma_name %} Turma {{ turma_name }},{% endif %}
+                    {% if semester_name %} {{ semester_name}} Semestre{% endif%}
+                    {% if year_name %} de {{ year_name }}{% endif %}
+                </h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="border-top-left-radius:35px;border-bottom-left-radius:35px;">#</th>
+                            <th style="text-align:left;">Primeiro Nome</th>
+                            <th style="text-align:left;">Ultimo Nome</th>
+                            <th style="text-align:left;">Email</th>
+                            <th style="text-align:center;border-top-right-radius:35px;border-bottom-right-radius:35px;">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students  %}
+                            <tr class="tr-tbody">
+                                <td style="text-align:center;">{{ forloop.counter }}</td>
+                                <td>{{ student.first_name }}</td>
+                                <td>{{ student.last_name }}</td>
+                                </td>
+                                <td>{{ student.email }}
+                                </td>
+                                <td class="student-details">
+                                    <a href="{% url 'app2:student_personal_details' student.id %}" title="Ver dados de {{ student.fullname }}">
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-result">Nao ha resultados para a pesquisa.</p>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

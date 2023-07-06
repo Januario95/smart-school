@@ -1,0 +1,198 @@
+{% extends "pages/teacher/teacher_marks.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Adicionar Notas do Ficheiro</title>    
+{% endblock %}
+
+{% block further_style %}
+	<style>
+		.attendance-by-list {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.form-filter .form-row {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter .form-row label {
+			font-size: 12px;
+		}
+		.filter-section .option {
+			padding: 5px;
+			background-color: #f6f6f7;
+			list-style: none;
+			color: black;
+		}
+		.filter-section .option .por-lista {
+			border-top-left-radius: 16px;
+			border-bottom-left-radius: 16px;
+		}
+		.filter-section .option .qr-code { 
+			border-top-right-radius: 16px;
+			border-bottom-right-radius: 16px;
+		}
+	</style>
+{% endblock %}
+
+{% block take_attendance %}
+	<div class="attendance-by-list">
+		<form method="post" class="form-filter" enctype="multipart/form-data">
+			<div class="form-row">
+				<label for="id_year">Ano</label>
+				{{ form.year }}
+			</div>
+			<div class="form-row">
+				<label for="id_semester">Semestre</label>
+				{{ form.semester }}
+			</div>
+			<div class="form-row">
+				<label for="id_classe">Classe</label>
+				{{ form.classe }}
+			</div>
+			<div class="form-row">
+				<label for="id_turma">Turma</label>
+				{{ form.turma }}
+			</div>
+			<div class="form-row">
+				<label for="id_subject">Disciplina</label>
+				{{ form.subject }}
+			</div>
+			<div class="form-row">
+				<label for="id_test">Selecione o teste</label>
+				{{ form.test }}
+			</div>
+			<div class="form-row file-input">
+				{% if has_errors %}
+					<span class="error">Faça upload de um ficheiro Excel</span>
+				{% endif %}
+				{{ form.file }}
+				<label for="id_file">
+				  Selecionar ficheiro
+				  <p class="file-name"></p>
+				</label>
+			</div>
+			<div class="form-row">
+				{% csrf_token %}
+				<label class="hide-dot">.</label>
+				<input type="submit" value="Submeter">
+			</div>
+		</form>
+		<div class="attendance-result">
+			{% if students %}
+				<div class="take-attendance-div confirm-marks">
+					<button class="add-marks">Submeter notas</button>
+					<span class="verify-marks">Verifique as notas antes de submeter</span>
+				</div>
+				<table>
+					<thead>
+						<tr>
+							<th style="border-top-left-radius:16px;border-bottom-left-radius:16px">#</th>
+							<th>Primeiro nome</th>
+							<th>Ultimo nome</th>
+							<th style="border-top-right-radius:16px;border-bottom-right-radius:16px;">Nota</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for student in students %}
+							<tr class="tr-tbody">
+								<td style="text-align:center;">{{ forloop.counter }}</td>
+								<td style="text-align:center;">{{ student.first_name }}</td>
+								<td style="text-align:center;">{{ student.last_name }}</td>
+								<td style="text-align:center;">{{ student.mark }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<!--
+				<span>
+					Nao foram encontrados estudantes
+					{% if classe_name %} na {{ classe_name }}{% endif %}
+					{% if turma_name %} Turma {{ turma_name }},{% endif %}
+					{% if semester_name %} {{ semester_name}} Semestre{% endif%}
+					{% if year_name %} de {{ year_name }}{% endif %}
+				</span>
+				-->
+				<span>Faça upload de um ficheiro Excel com o formato abaixo.</span>
+				<img src="{% static 'Excel_file_template.png' %}" alt="">
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		function takeAttendance(teacherPk, studentPk, btnClass, year, semester, classe, turma, subject) {
+			let tag = document.getElementById(btnClass);
+			let text = tag.value;
+
+			subject = document.getElementById('id_take_attendance');
+
+			fetch(`/professor-marcar-prensenca-api/${studentPk}/${year}/${semester}/${classe}/${turma}/${subject.value}/${text}/`)
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+				})
+				.catch(err => console.error(err));
+		}
+
+		let allBtns = document.querySelectorAll('.attended-class');
+		for (let btn of allBtns) {
+			/*
+			let text = btn.textContent;
+			btn.style.backgroundColor = 'lightgreen';
+			if (text == 'Nao') {
+				btn.style.backgroundColor = 'red';
+			} else {
+				btn.style.backgroundColor = 'lightblue';
+			}
+			*/
+		}
+
+
+		/*
+		let takeAttendanceBtn = document.querySelector('.take-attendance-btn');
+		takeAttendanceBtn.addEventListener('click', e => {
+			let trTbody = document.querySelectorAll('.tr-tbody');
+			for (let tr of trTbody) {
+				
+			}
+		})
+
+		let attendedClass = document.querySelectorAll('.attended-class');
+		highLightAttendance();
+
+		function highLightAttendance() {
+			attendedClass = document.querySelectorAll('.attended-class');
+			for (let tag of attendedClass) {
+				if (tag.value == 'nao') {
+					tag.style.backgroundColor = 'red';
+				} else {
+					tag.style.backgroundColor = 'lightblue';
+				}
+			}
+		}
+
+		for (let tag of attendedClass) {
+			tag.addEventListener('change', e => {
+				setTimeout(() => {
+					highLightAttendance();
+				}, 100);
+			});
+		}
+		*/
+	</script>
+{% endblock %}

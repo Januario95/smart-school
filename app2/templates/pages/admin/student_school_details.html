@@ -1,0 +1,65 @@
+{% extends "pages/admin/student_details.html" %}
+
+{% block title %}
+	<title>Detalhes escolares</title>
+{% endblock %}
+
+{% block student_form %}
+{% endblock %}
+
+{% block student_data %}
+	<div class="student-personal-detail"></div>
+		<div class="student-personal-row student-personal-left">
+			<span>Selecione o ano para mostrar resultados</span>
+			<form method="post" class="filter-section">
+				<div class="row">
+					<label for="id_year">Year</label>
+					{{ form.year }}
+				</div>
+				<div class="row">
+					{% csrf_token %}
+					<label style="color: #F6FBFB;">.</label>
+					<input type="submit" class="btn" value="Pesquisar">
+				</div>
+			</form>
+		</div>
+
+		<div class="student-semester-details">
+			{% if semesters %}
+				<table>
+					<thead>
+						<tr>
+							<th style="border-top-left-radius:16px;">Ano</th>
+							<th>Semestre</th>
+							<th>Classe</th>
+							<th>Turma</th>
+							<th style="border-top-right-radius:16px;">Detalhes</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for semester in semesters %}
+							<tr style="border-bottom: 1px solid #ccc;" class="semester-tr semester-tr-{{ semester.pk }}">
+								<td style="text-align:center;">{{ semester.year }}</td>
+								<td style="text-align:center;">{{ semester.name }}</td>
+								<td style="text-align:center;">{{ semester.classe }}</td>
+								<td style="text-align:center;">{{ semester.turma }}</td>
+								<td style="text-align:center;">
+									<button onclick="loadSemesterInfo('{{ semester.pk }}', '{{ student.pk }}', '{{ semester.year }}', '{{ semester.classe }}', '{{ semester.turma }}', '{{ semester.name }}')" class="ver-detalhes ver-detalhes-{{ semester.pk }}">Ver detalhes</button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			{% else %}
+				<h5 style="text-align:center;">Nenhuma actividade academica encontrada</h5>
+			{% endif %}
+		</div>
+
+		<div class="student-personal-row student-personal-right">
+			<div class="student-attendance-overall"></div>
+			<div class="student-subjects"></div>
+			<div class="student-attendance"></div>
+		</div>
+	</div>
+{% endblock %}

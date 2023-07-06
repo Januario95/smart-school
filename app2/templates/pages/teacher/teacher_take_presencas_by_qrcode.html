@@ -1,0 +1,42 @@
+{% extends "pages/teacher/teacher_take_presencas.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Marcar Presenca Por List</title>    
+{% endblock %}
+
+{% block further_style %}
+	<style>
+		.filter-section .option {
+			padding: 5px;
+			background-color: #f6f6f7;
+			list-style: none;
+			color: black;
+		}
+		.filter-section .option .por-lista {
+			border-top-left-radius: 16px;
+			border-bottom-left-radius: 16px;
+		}
+		.filter-section .option .qr-code { 
+			border-top-right-radius: 16px;
+			border-bottom-right-radius: 16px;
+		}
+	</style>
+{% endblock %}
+
+{% block take_attendance %}
+	<div class="attendance-by-list">
+		<div class="qrcode-title">
+			<h4>Faça scan do QR Code para confirmar a sua presença na aula</h4>
+		</div>
+		<div class="attendance-result">
+			<img src="{% static 'mycontact2.png' %}" alt="">
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		
+	</script>
+{% endblock %}

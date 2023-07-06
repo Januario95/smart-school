@@ -1,0 +1,63 @@
+{% load static %}
+{% load format_words %}
+
+<div class="Navbar">
+    <div class="Navbar__Link Navbar__Link-brand">
+        <a href="{% url 'app2:home' %}">
+            <img class="site-logo" src="{% static 'Stanford.PNG' %}">
+        </a>
+    </div>
+    <div class="Navbar__Link Navbar__Link-toggle">
+        <!-- <i class="fas fa-bars">☰</i> -->
+        <span>☰</span>
+    </div>
+    <nav class="Navbar__Items">
+        <div class="Navbar__Link">
+            <a href="{% url 'student_app:student_profile' student.pk %}" class="school-name">Stanford University</a>
+        </div>
+    </nav>
+    <nav class="Navbar__Items Navbar__Items--right">
+        <div class="Navbar__Link">
+            <a class="header-link estudantes" href="{% url 'student_app:student_teachers' student.pk %}">Professores</a>
+        </div>
+        <div class="Navbar__Link">
+            <a class="header-link estudantes" href="{% url 'student_app:student_view_attendance' student.pk %}">Presencas</a>
+        </div>
+        <div class="Navbar__Link">
+            <a class="header-link professores" href="#">Notas</a>
+        </div>
+        <div class="Navbar__Link">
+            <a class="header-link professores" href="#">Horario</a>
+        </div>
+        <div class="Navbar__Link">
+            <a class="header-link professores" href="#">Menssagens</a>
+        </div>
+        {% if request.user.is_authenticated %}
+            <div class="Navbar__Link">
+                <div class="dropdown">
+                    <a class="dropbtn header-link profile-img-small" href="{% url 'student_app:student_profile' student.pk %}">
+					    <img src="/media/{{ student.profile_pic }}" alt="{{ student.fullname }}">
+				    </a>
+                    <div class="dropdown-content">
+                        <a class="ver-por-turma" href="{% url 'student_app:student_profile' student.pk %}">Perfil</a>
+                        <a class="header-link" href="{% url 'app2:logout' %}">Sair</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="Navbar__Link">
+                <a class="header-link" href="{% url 'app2:login' %}">Login</a>
+            </div>
+        {% endif %}
+    </nav>
+</div>
+
+
+<script>
+    function classToggle() {
+        const navs = document.querySelectorAll('.Navbar__Items');
+        navs.forEach(nav => nav.classList.toggle('Navbar__ToggleShow'));
+    }
+      
+    document.querySelector('.Navbar__Link-toggle').addEventListener('click', classToggle);
+</script>

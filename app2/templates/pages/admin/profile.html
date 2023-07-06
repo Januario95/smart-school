@@ -1,0 +1,120 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Lista de Professores</title>
+{% endblock %}
+
+{% block style %}
+	<style>
+		.profile-section {
+			display: flex;
+			width: 90%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 10px;
+		}
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+            height: 30px;
+            width: 100%;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            height: 33px;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			width: 100%;
+			margin-top: 15px;
+			border-top: 6px solid teal;
+			padding: 20px;
+			border-radius: 0px 0px 10px 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section tr {
+			border-bottom: 1px solid #ccc;
+		}
+		.result-section th,
+		.result-section td {
+			/*border: 1px solid #ccc;*/
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 13px;
+		}
+		.filter-section {
+			width: 90%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: center;
+		}
+		.row {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.gender {
+			font-weight: normal;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.filter-section {
+				flex-direction: column;
+			}
+			select,
+			input[type="text"],
+			input[type="submit"],
+			#id_password {
+				margin-top: 10px;
+				width: 100%;
+				max-width: 250px;
+				height: 25px;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="profile-section">
+		<div class="left-section">
+			
+		</div>
+		<div class="right-section">
+			
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		
+	</script>
+{% endblock %}
+

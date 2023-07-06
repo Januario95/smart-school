@@ -1,0 +1,152 @@
+{% extends "pages/admin/lista_de_estudantes.html" %}
+
+{% block title %}
+    <title>Detalhes de estudantes</title>
+{% endblock %}
+
+{% block inner_style %}
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+        }
+    </style>
+{% endblock %}
+
+{% block student_form %}
+    <form method="post" class="filter-section">
+        <div class="row">
+            <label for="id_year">Year</label>
+            {{ form.year }}
+        </div>
+        <div class="row">
+            <label for="id_semester">Semester</label>
+            {{ form.semester }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a classe</label>
+            {{ form.classe }}
+        </div>
+        <div class="row">
+            <label value="default">Selecione a turma</label>
+            {{ form.turma }}
+        </div>
+        <div class="row">
+            <label for="id_gender">Genero</label>
+            {{ form.gender }}
+        </div>
+        <div class="row">
+            {% csrf_token %}
+            <label style="color: #F6FBFB;">.</label>
+            <input type="submit" class="btn" value="Pesquisar">
+        </div>
+    </form>
+{% endblock %}
+
+{% block student_info %}
+    <div class="result-section">
+        {% block student_details %}
+            {% if student_data %}
+                <h4>
+                    Lista de Estudantes
+                    {% if gender_name == 'masculino' %}
+                        (Homens)
+                    {% elif gender_name == 'feminino' %}
+                        (Mulheres)
+                    {% endif %}
+                    {% if classe_name %}da {{ classe_name }}{% endif %}
+                    {% if turma_name %} Turma {{ turma_name }},{% endif %}
+                    {% if semester_name %} {{ semester_name}} Semestre{% endif%}
+                    {% if year_name %} de {{ year_name }}{% endif %}
+                </h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="3">#</th>
+                            <th rowspan="3" style="text-align:center;">Nome</th>
+                            <th colspan="{{ nr_of_subjects }}" style="text-align:center;border-bottom:1px solid #ccc;">
+                                P=Participou  &nbsp;&nbsp;&nbsp;&nbsp;  F=Faltou
+                            </th>
+                        </tr>
+						<tr>
+							{% for subj in subject_names_ %}
+								<th colspan="2" style="border-left: 1px solid #ccc;;">{{ subj.subject }}</th>
+							{% endfor %}
+                            <th colspan="2">
+                                Total
+                            </th>
+						</tr>
+                        <tr>
+							{% for subj in subject_names_ %}
+								<th style="border:1px solid #ccc;">P</th>
+                                <th style="border:1px solid #ccc;">F</th>
+							{% endfor %}
+                            <th style="border:1px solid #ccc;">P</th>
+                            <th style="border:1px solid #ccc;">F</th>
+						</tr>
+                    </thead>
+                    <tbody>
+                        {% for student in student_data  %}
+                            <tr class="tr-tbody" title="Clique para sublinhar de {{ student.student_name }}">
+                                <td style="text-align:center;">{{ forloop.counter }}</td>
+                                <td style="text-align:left;padding-left:20px;">
+                                    <a href="{% url 'app2:student_personal_details' student.student_pk %}"
+                                    title="Clique para ver detalhes de {{ student.student_name }}">
+                                        {{ student.student_name }}
+                                    </a>
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Ingles.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Ingles.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Portugues.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Portugues.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Biologia.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Biologia.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Quimica.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Quimica.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Fisica.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Fisica.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Matematica.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.Matematica.is_not_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.is_present }}
+                                </td>
+                                <td style="text-align:center;" class="falta">
+                                    {{ student.is_not_present }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="no-result">Nao ha resultados para a pesquisa.</p>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}

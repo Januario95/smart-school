@@ -1,0 +1,174 @@
+{% extends "pages/admin/student_details.html" %}
+
+{% block inner_style %}
+	<style>
+		.parents {
+			width: 100%;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.parents-row {
+			width: 100%;
+			max-width: 300px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: space-around;
+		}
+		.parents-row:first-child {
+			
+		}
+		.parents-info-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: center;
+		}
+		.row-header {
+			width: 150px;
+			border-bottom: 2px solid #46ACC2;
+		}
+		.parents div span {
+			font-size: 13px;
+			margin-bottom: 9px;
+		}
+		.message-tr {
+			border-bottom: 1px solid #ccc;
+		}
+		@media only screen and (max-width: 1049px) {
+			.parents {
+				justify-content: center;
+			}
+		}
+		@media only screen and (max-width: 768px) {
+			input[type="text"] {
+				max-width: 300px;
+			}
+		}
+		#id_father_message, #id_mother_message {
+			max-width: 300px;
+		}
+	</style>
+{% endblock %}
+
+{% block student_data %}
+	<div class="parents">
+		{% for parent in student.parents.all %}
+			<div class="parents-row">
+				<div class="parents-info-row parent-messages-sent">
+					{% if parent.is_male %}
+						<h5 class="row-header">Dados do pai</h5>
+						<span>
+							Nome do pai: {{ parent.first_name }}
+							{{ parent.last_name }}
+						</span>
+					{% else %}
+						<h5 class="row-header">Dados da mae</h5>
+						<span>
+							Nome da mae: {{ parent.first_name }}
+							{{ parent.last_name }}
+						</span>
+					{% endif %}
+					<span>Profissao: {{ parent.job_title }}</span>
+					<span>
+						Numero de telefone: {{ parent.phone_number }}
+						<a href="tel:{{ parent.phone_number }}" title="Ligar para {{ parent.first_name }} {{ parent.last_name }}">&phone;</a>
+					</span>
+					<span>
+						Email: <a href="mailto:{{ parent.email }}">{{ parent.email }}</a>
+					</span>
+					<span>Bairro: {{ parent.bairro }}</span>
+					<span>Cidade: {{ parent.city }}</span>
+					<span>Provincia: {{ parent.province }}</span>
+				</div>
+			
+				<div class="parent-form parent-messages-sent {% if parent.is_male %}father-form{% else %}mother-form{% endif %}">
+					<h5 class="row-detail-header">Enviar messagem para {% if parent.is_male %}o pai{% else %}a mae{% endif %}</h5>
+					<form method="POST">
+						<div class="send-message-row">
+							{% if parent.is_male %}
+								{{ form.father_phone_number }}
+							{% else %}
+								{{ form2.mother_phone_number }}
+							{% endif %}
+						</div>
+						<div class="send-message-row">
+							{% if parent.is_male %}
+								{{ form.father_message }}
+							{% else %}
+								{{ form2.mother_message }}
+							{% endif %}
+						</div>
+						{% csrf_token %}
+						<div class="send-message-row">
+							{% if parent.is_male %}
+								<input type="submit" class="btn" name="form1" value="Enviar">
+							{% else %}
+								<input type="submit" class="btn" name="form2" value="Enviar">
+							{% endif %}
+						</div>
+					</form>
+				</div>
+
+				<div class="parent-messages-sent {% if parent.is_male %}father-sent-messages{% else %}mother-sent-messages{% endif %}">
+					<h5 class="row-detail-header">Messagens Enviadas</h5>
+					{% if parent.admintoparentsmessage_set.all %}
+						{% with parent.admintoparentsmessage_set.all as messages %}
+							<div class="mensages-sent">
+								<table>
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Message</th>
+											<th>Enviada em</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for message in messages %}
+											<tr class="message-tr">
+												<td style="font-size:10px;">{{ forloop.counter }}</td>
+												<td style="font-size:10px;">{{ message.message }}</td>
+												<td style="font-size:10px;">{{ message.sent_at }}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endwith %}
+					{% endif %}
+				</div>
+
+				<div class="parent-messages-sent {% if parent.is_male %}father-received-messages{% else %}mother-received-messages{% endif %}">
+					<h5 class="row-detail-header">Messagens Recebidas</h5>
+					{% if parent.admintoparentmessageadmin_set.all %}
+						{% with parent.admintoparentmessageadmin_set.all as messages %}
+							<div class="mensages-sent">
+								<table>
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Message</th>
+											<th>Enviada em</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for message in messages %}
+											<tr class="message-tr">
+												<td style="font-size:10px;">{{ forloop.counter }}</td>
+												<td style="font-size:10px;">{{ message.message }}</td>
+												<td style="font-size:10px;">{{ message.sent_at }}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endwith %}
+					{% endif %}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

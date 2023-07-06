@@ -1,0 +1,238 @@
+{% extends "pages/admin/teacher_details.html" %}
+{% load format_words %}
+
+{% block inner_style %}
+	<style>
+		.student-personal-detail {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			justify-content: space-between;
+		}
+		.student-row-detail {
+			display: flex;
+			flex-direction: column;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+		.message-tr {
+			border-bottom: 1px solid #ccc;
+		}
+		.student-row-detail-messages {
+			
+		}
+		.student-row-detail-messages form {
+			margin: 0px 0px 10px 0px;
+		}
+		.mensages-sent {
+			overflow-y: scroll;
+			max-height: 140px;
+		}
+		input[type="date"] {
+			height: 26px;
+            width: 45%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+		}
+		.btn-2 {
+			width: 45% !important;
+		}
+		.btn-1 {
+			width: 100%;
+		}
+		#id_message {
+			max-width: 350px;
+		}
+		.highlight-tr {
+			background-color: #f4eded;
+		}
+		.subject-list li {
+			list-style: none;
+		}
+	</style>
+{% endblock %}
+
+{% block student_data %}
+	<div class="student-personal-detail"></div>
+		<div class="student-personal-row student-personal-left">
+			<span>Selecione o ano para mostrar resultados</span>
+			<form method="post" class="filter-section">
+				<div class="row">
+					<label for="id_year">Year</label>
+					{{ form.year }}
+				</div>
+				<div class="row">
+					{% csrf_token %}
+					<label style="color: #F6FBFB;">.</label>
+					<input type="submit" class="btn" value="Pesquisar">
+				</div>
+			</form>
+		</div>
+
+		<div class="student-semester-details">
+			{% if semesters %}
+				<table>
+					<thead>
+						<tr>
+							<th style="border-top-left-radius:16px;">Ano</th>
+							<th>Semestre</th>
+							<th>Classe</th>
+							<th>Turma</th>
+							<th>Disciplinas</th>
+							<th style="border-top-right-radius:16px;">Detalhes</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for semester in semesters %}
+							<tr style="border-bottom: 1px solid #ccc;" class="semester-tr semester-tr-{{ semester.pk }}">
+								<td style="text-align:center;">{{ semester.year }}</td>
+								<td style="text-align:center;">{{ semester.name }}</td>
+								<td style="text-align:center;">{{ semester.classe }}</td>
+								<td style="text-align:center;">{{ semester.turma }}</td>
+								<td style="text-align:center;" class="subject-list">
+									<ul>
+                                        {% for subject in semester.subjects.all %}
+                                            <li>{{ subject }}</li>
+                                        {% endfor %}
+                                    </ul>
+								</td>
+								<td style="text-align:center;">
+									<button onclick="loadSemesterInfo('{{ semester.pk }}', '{{ teacher.pk }}', '{{ semester.year }}', '{{ semester.name }}', '{{ semester.classe }}', '{{ semester.turma }}')" class="ver-detalhes ver-detalhes-{{ semester.pk }}">Ver detalhes</button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<h5 style="text-align:center;">
+					{% if year_name %}
+						Nenhuma actividade academica encontrada para {{ year_name }}.
+					{% endif %}
+				</h5>
+			{% endif %}
+		</div>
+
+		<div class="student-personal-row student-personal-right">
+			<div class="teacher-subjects"></div>
+			<div class="student-subjects"></div>
+			<div class="student-attendance"></div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let urls2 = ['professores-detalhes-dados-pessoais', 'professores-detalhes-dados-escolares',
+					 'professores-detalhes-disciplinas'];
+
+		let activeURL = window.location.href.split('/');
+		let activeUrlID = activeURL[4];
+
+		checkActiveLink2();
+		function checkActiveLink2() {
+			for (let url of urls2) {
+				let u = localhost + url + `/${activeUrlID}/`;
+				u = u.split('/')[3]
+				u = u.split('detalhes')[0]
+				u += 'detalhes';
+				
+				let currentURL = document.querySelector(`.${url}`);
+                
+				if (localhost + url + `/${activeUrlID}/` === window.location.href) {
+					currentURL.classList.add('active-sublink-student');
+					let header = document.querySelector('.professores');
+					header.classList.add('active-link');
+
+					let headerLeft = document.querySelector('.estudantes-detalhes');
+					headerLeft.classList.add('active-link-student');
+				} else {
+					currentURL.classList.remove('active-sublink-student');
+				}
+			}
+		}
+
+
+		function highLightSubjectTr(semesterPk) {
+			let trs = document.querySelectorAll('.ver-detalhes');
+			for (let tag of trs) {
+				let parent = tag.parentElement.parentElement;
+				parent.classList.remove('highlight-semester')
+			}
+			let tr = document.querySelector(`.ver-detalhes-${ semesterPk }`);
+			let parent = tr.parentElement.parentElement;
+			parent.classList.add('highlight-semester');
+		}
+
+
+		function createTable(data) {
+			let div = document.querySelector('.teacher-subjects');
+			div.innerHTML = '';
+			div.style.marginTop = '10px';
+
+			let table = document.createElement('table');
+			let thead = document.createElement('thead');
+			thead.innerHTML += `
+				<tr>
+					<th style="border-top-left-radius:16px;">#</th>
+					<th>Disciplina</th>
+					<th>Numero de alunos <span style="color:black;">&male;<span></th>
+					<th>Numero de alunas <span style="color:black;">&female;<span></th>
+					<th style="border-top-right-radius:16px;">Total</th>
+				</tr>
+			`;
+			table.appendChild(thead);
+			let tbody = document.createElement('tbody');
+
+			// let total = parseInt(data.nr_male) + parseInt(data.nr_female);
+				
+			let index = 1;
+			let tr = document.createElement('tr');
+			tr.style.borderBottom = '1px solid #ccc';
+			// tr.classList.add("ver-detalhes");
+			tr.innerHTML += `
+				<td style="text-align:center;">${ index }</td>
+				<td style="text-align:center;display:flex;align-items:center;justify-content:center;">
+					${ data.subjects[0] }
+				</td>
+				<td style="text-align:center;">${ data.nr_male }</td>
+				<td style="text-align:center;">${ data.nr_female }</td>
+				<td style="text-align:center;">${ data.total_students }</td>
+			`;
+			index += 1;
+			tbody.appendChild(tr);
+
+			table.appendChild(tbody);
+			div.appendChild(table);
+		}
+
+		function loadSemesterInfo(semesterPk, teacherPk, semesterYear, semesterName, semesterClasse, semesterTurma) {
+			highLightSubjectTr(semesterPk)
+
+			fetch(`/teacher_subject_info_api/${semesterPk}/${teacherPk}/${semesterYear}/${semesterName}/${semesterClasse}/${semesterTurma}/`)
+				.then(res => res.json())
+				.then(data => {
+					// console.log(data);
+					createTable(data);
+				})
+				.catch(err => console.error(err));
+		}
+	</script>
+{% endblock %}

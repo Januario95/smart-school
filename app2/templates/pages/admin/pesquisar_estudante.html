@@ -1,0 +1,158 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Lista de Estudantes</title>
+{% endblock %}
+
+{% block style %}
+	<style>
+		.student-list {
+			display: flex;
+			flex-wrap: wrap;
+			width: 80%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 50px;
+		}
+		.no-filter-selection {
+			outline: 1px solid red;
+		}
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+			margin-top: 10px;
+			width: 200px;
+			height: 32px;
+			text-align: center;
+			border: 1px solid #333;
+			border-radius: 5px;
+		}
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 2px solid lightblue;
+		}
+		.result-section {
+			width: 90%;
+			margin-top: 20px;
+			border-top: 6px solid teal;
+			padding: 20px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section tr {
+			border-bottom: 1px solid #ccc;
+		}
+		.result-section th,
+		.result-section td {
+			/*border: 1px solid #ccc;*/
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 13px;
+		}
+		.filter-section {
+			width: 90%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: center;
+		}
+		.row {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.gender {
+			font-weight: normal;
+		}
+		.link {
+			text-decoration: none;
+		}
+		.center-td {
+			text-align: center;
+		}
+		td a {
+			text-decoration: none;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="student-list">
+		<form method="post" class="filter-section">
+			<div class="row">
+				<label value="default">Insira o primeiro nome</label>
+				{{ form.first_name }}
+			</div>
+			<div class="row">
+				<label value="default">Insira o ultimo nome</label>
+				{{ form.last_name }}
+			</div>
+			<div class="row">
+				{% csrf_token %}
+				<label>Pesquisar</label>
+				<input type="submit" class="btn" value="Pesquisar">
+			</div>
+		</form>
+		<div class="result-section">
+			{% if students %}
+				<table>
+					<thead>
+						<tr>
+							<th>#</th>
+							<th style="text-align:left;">Primeiro Nome</th>
+							<th style="text-align:left;">Ultimo Nome</th>
+							<th>Classe</th>
+							<th>Turma</th>
+							<th>Genero</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for student in students  %}
+							<tr>
+								<td>{{ forloop.counter }}</td>
+								<td>
+									<a href="{% url 'app2:student_personal_details' student.id %}">{{ student.first_name }}</a>
+								</td>
+								<td>{{ student.last_name }}</td>
+								<td class="center-td">{{ student.classe.name }}</td>
+								<td class="center-td">{{ student.classe.turma.name }}</td>
+								<td class="gender center-td">{{ student.gender }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<h3>Nao ha resultados para a pesquisa.</h3>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let genders = document.querySelectorAll('.gender');
+		for (let gender of genders) {
+			if (gender.textContent == 'male') {
+				gender.textContent = 'Masculino';
+			} else {
+				gender.textContent = 'Femenino';
+			}
+		}
+	</script>
+{% endblock %}
+

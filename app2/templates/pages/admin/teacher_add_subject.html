@@ -1,0 +1,183 @@
+{% extends "pages/admin/teacher_details.html" %}
+
+{% block title %}
+	<title>Detalhes escolares</title>
+{% endblock %}
+
+{% block inner_style %}
+	<style>
+		.teacher-add-subject-section {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 40px;
+            padding: 15px;
+		}
+		.teacher-school-details-info {
+			width: 100%;
+		}
+        .teacher-school-details-info .form-section {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			align-items: center;
+            margin-bottom: 8px;
+		}
+        .form-section .form-row {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+        }
+        .form-section .form-row label {
+            font-size: 12px;
+        }
+        .form-section .form-row .hide-dot {
+            color: white;
+        }
+        .semesters-registered {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .semesters-registered .semester-exist {
+            margin-bottom: 6px;
+            font-size: 12px;
+            background-color: #d69b42;
+            padding: 5px;
+            border-radius: 16px;
+            color: black;
+            font-weight: bold;
+        }
+        .semesters-registered table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.semesters-registered th {
+			font-size: 13px;
+		}
+		.semesters-registered th,
+		.semesters-registered td {
+			padding: 5px;
+            text-align: center;
+		}
+		.semesters-registered td {
+			font-size: 12px;
+		}
+        .semesters-registered .tr-tbody {
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        .tr-tbody .semester-subjects {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+		.tr-tbody .semester-subjects li {
+			list-style: none;
+		}
+
+		
+		input[type="text"],
+        input[type="email"] {
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            height: 23px;
+            padding-left: 6px;
+            text-align: center;
+        }
+        select,
+        input[type="submit"],
+        input[type="date"] {
+            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            height: 25px;
+            width: 110px;
+            text-align: center;
+        }
+        input[type="submit"] {
+            cursor: pointer;
+            color: white;
+            background-color: #46ACC2;
+        }
+	</style>
+{% endblock %}
+
+{% block student_form %}
+{% endblock %}
+
+{% block student_data %}
+	<div class="teacher-add-subject-section">
+		<div class="teacher-school-details-info">
+			<form method="post" class="form-section">
+				<div class="form-row">
+					<label for="id_academic_year">Ano Academico</label>
+					{{ form.academic_year }}
+				</div>
+				<div class="form-row">
+					<label for="id_semester">Semestre</label>
+					{{ form.semester }}
+				</div>
+				<div class="form-row">
+					<label for="id_first_name">Classe</label>
+					{{ form.classe }}
+				</div>
+				<div class="form-row">
+					<label for="id_last_name">Turma</label>
+					{{ form.turma }}
+				</div>
+				<div class="form-row">
+					<label for="id_subject">Disciplina</label>
+					{{ form.subject }}
+				</div>
+				<div class="form-row">
+					{% csrf_token %}
+					<span class="hide-dot">&</span>
+					<input type="submit" class="register-subject" value="Registar">
+				</div>
+			</form>
+		</div>
+		<div class="semesters-registered">
+			{% if semester_exists %}
+				<span class="semester-exist">{{ semester_exists }}</span>
+			{% endif %}
+			<table>
+				<thead>
+					<th style="border-top-left-radius:16px;border-bottom-left-radius:16px;">#</th>
+					<th>Ano</th>
+					<th>Semestre</th>
+					<th>Classe</th>
+					<th>Turma</th>
+					<th style="border-top-right-radius:16px;border-bottom-right-radius:16px;">Disciplinas</th>
+				</thead>
+				<tbody>
+					{% for semester in semesters %}
+						<tr class="tr-tbody">
+							<td>{{ forloop.counter }}</td>
+							<td>{{ semester.year }}</td>
+							<td>{{ semester.name }}</td>
+							<td>{{ semester.classe }}</td>
+							<td>{{ semester.turma }}</td>
+							<td class="semester-subjects">
+								<ul>
+									{% for subject in semester.subjects.all %}
+										<li>{{ subject }}</li>
+									{% endfor %}
+								</ul>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}

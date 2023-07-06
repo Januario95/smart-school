@@ -1,0 +1,284 @@
+{% extends "pages/teacher/teacher_take_presencas.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Marcar Presenca Por List</title>    
+{% endblock %}
+
+{% block further_style %}
+	<style>
+		.attendance-by-list {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.form-filter {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.filter-section .option {
+			padding: 5px;
+			background-color: #f6f6f7;
+			list-style: none;
+			color: black;
+		}
+		.filter-section .option .por-lista {
+			border-top-left-radius: 16px;
+			border-bottom-left-radius: 16px;
+		}
+		.filter-section .option .qr-code { 
+			border-top-right-radius: 16px;
+			border-bottom-right-radius: 16px;
+		}
+	</style>
+{% endblock %}
+
+{% block take_attendance %}
+	<div class="attendance-by-list">
+		<form method="post" class="form-filter">
+			<div class="form-row">
+				<label for="id_year">Ano</label>
+				{{ form.year }}
+			</div>
+			<div class="form-row">
+				<label for="id_semester">Semestre</label>
+				{{ form.semester }}
+			</div>
+			<div class="form-row">
+				<label for="id_classe">Classe</label>
+				{{ form.classe }}
+			</div>
+			<div class="form-row">
+				<label for="id_turma">Turma</label>
+				{{ form.turma }}
+			</div>
+			<div class="form-row">
+				<label for="id_subject">Disciplina</label>
+				{{ form.subject }}
+			</div>
+			<div class="form-row">
+				{% csrf_token %}
+				<label>.</label>
+				<input type="submit" value="Pesquisar">
+			</div>
+		</form>
+		{% if message %}
+			<span class="error-subject">Selecione a Disciplina</span>
+		{% else %}
+			<div class="attendance-result">
+				{% if subject_not_belong_to_teacher %}
+					<span class="error-subject">Selecione Disciplina na qual Leciona</span>
+				{% else %}
+					{% if students %}
+						<div class="confirm-attendance-div">
+							<!--
+							<select name="" id="id_take_attendance">
+								{% for subject in teacher_sujects %}
+									<option value="{{ subject }}">{{ subject }}</option>
+								{% endfor %}
+							</select>
+							-->
+							<!-- <span class="attended-exists"></span> -->
+						</div>
+						<table>
+							<thead>
+								<tr>
+									<th style="border-top-left-radius:16px;border-bottom-left-radius:16px">#</th>
+									<th>Primeiro nome</th>
+									<th>Ultimo nome</th>
+									<th>Marcar</th>
+									<th style="border-top-right-radius:16px;border-bottom-right-radius:16px;">Participou</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for student in students %}
+									<tr class="tr-tbody">
+										<td style="text-align:center;">{{ forloop.counter }}</td>
+										<td style="text-align:center;">{{ student.first_name }}</td>
+										<td style="text-align:center;">{{ student.last_name }}</td>
+										<td style="text-align:center;" class="present-absent">
+											<!--
+											<button class="attended-class" id="id_attended_{{ student.pk }}"
+												onclick="takeAttendance('{{ teacher.pk }}', '{{ student.pk }}', 'id_attended_{{ student.pk }}', '{{ year_name }}', '{{ semester_name }}', '{{ classe_name }}', '{{ turma_name }}')"
+											>Nao</button>
+											-->
+											<!--
+											<select name="" class="attended-class-option" id="id_attended_{{ student.pk }}">
+												<option value="nao">Nao</option>
+												<option value="sim">Sim</option>
+											</select>
+											-->
+											
+											<div class="row-present">
+												<label for="id_present">Presente</label>
+												<input type="radio" onclick="handleRadioBtn('{{ teacher.pk }}', '{{ student.pk }}', 'id_attended_{{ student.pk }}', '{{ year_name }}', '{{ semester_name }}', '{{ classe_name }}', '{{ turma_name }}', '{{ subject.name }}')" name="present-{{ student.pk }}"  id="id_present" value="Presente">
+											</div>
+											<div class="row-absent">
+												<label for="id_absent">Ausente</label>
+												<input type="radio" onclick="handleRadioBtn('{{ teacher.pk }}', '{{ student.pk }}', 'id_attended_{{ student.pk }}', '{{ year_name }}', '{{ semester_name }}', '{{ classe_name }}', '{{ turma_name }}', '{{ subject.name }}')" name="present-{{ student.pk }}" id="id_absent" value="Ausente">
+											</div>
+											
+											<!--
+											<section>
+												<input type="radio" name="styles" id="box-shadow" class="custom-radio">
+												<label for="box-shadow">Presente</label>
+											</section>
+											<section>
+												<input type="radio" name="styles" id="outline" class="custom-radio">
+												<label for="outline">Ausente</label>
+											</section>
+											-->
+										</td>
+										<td style="text-align:center;" class="student-attended-class attended-{{ student.pk }}">
+											Nao
+											<!--
+											{% if student.attended %}
+												<span class="yes">Sim</span>
+											{% else %}
+												<span class="no">Nao</span>
+											{% endif %}
+											-->
+										</td>
+										<!--
+										<td style="text-align:center;">
+											<button class="attended-class"
+												onclick="takeAttendance('{{ teacher.pk }}', '{{ student.pk }}', 'id_attended_{{ student.pk }}', '{{ year_name }}', '{{ semester_name }}', '{{ classe_name }}', '{{ turma_name }}')"
+											>Marcar</button>
+										</td>
+										-->
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					{% else %}
+						<span>
+							Nao foram encontrados estudantes
+							{% if classe_name %} na {{ classe_name }}{% endif %}
+							{% if turma_name %} Turma {{ turma_name }},{% endif %}
+							{% if semester_name %} {{ semester_name}} Semestre{% endif%}
+							{% if year_name %} de {{ year_name }}{% endif %}
+						</span>
+					{% endif %}
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let isPresent = document.getElementsByName('present');
+		
+		function handleRadioBtn(teacherPk, studentPk, idAttended, yearName, semesterName, classeName, turmaName, subjectName) {
+			if (document.querySelector(`input[name="present-${ studentPk }"]`)) {
+				document.querySelectorAll(`input[name="present-${ studentPk }"]`).forEach((elem) => {
+					elem.addEventListener("change", function(event) {
+						var text = event.target.value;
+						// console.log(item);
+
+						subject = document.getElementById('id_subject');
+
+						fetch(`/professor-marcar-prensenca-api/${teacherPk}/${studentPk}/${yearName}/${semesterName}/${classeName}/${turmaName}/${subjectName}/${text}/`)
+							.then(res => res.json())
+							.then(data => {
+								console.log(data);
+								let td = document.querySelector(`.attended-${ studentPk }`);
+								td.style.fontWeight = 'bold';
+								// let attendedExists = document.querySelector('.attended-exists');
+								let attendedExists = document.querySelector('.confirm-attendance-div');
+								attendedExists.innerHTML = '';
+								let span = document.createElement('span');
+								span.style.padding = '5px';
+								span.style.borderRadius = '14px';
+								
+								if (data.attended) {
+									td.textContent = 'Sim';
+									td.style.color = 'teal';
+									// attendedExists.textContent = `${ data.student_name } está ausente`;
+									// attendedExists.style.backgroundColor = '#26a2ad';
+									span.textContent = `${ data.student_name } está ausente`;
+									span.style.backgroundColor = '#26a2ad';
+									span.style.color = 'white';
+								} else {
+									td.textContent = 'Nao';
+									td.style.color = 'red';
+									// attendedExists.textContent = `${ data.student_name } nao está presente`;
+									// attendedExists.style.backgroundColor = 'red';
+									span.textContent = `${ data.student_name } nao está presente`;
+									span.style.backgroundColor = 'red';
+									span.style.color = 'black';
+								}
+								attendedExists.appendChild(span);
+							})
+							.catch(err => console.error(err));
+								});
+							});
+			}
+		}
+
+		function takeAttendance(teacherPk, studentPk, btnClass, year, semester, classe, turma, subject) {
+			let tag = document.getElementById(btnClass);
+			let text = tag.value;
+
+			subject = document.getElementById('id_take_attendance');
+
+			fetch(`/professor-marcar-prensenca-api/${studentPk}/${year}/${semester}/${classe}/${turma}/${subject.value}/${text}/`)
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+				})
+				.catch(err => console.error(err));
+		}
+
+		let allBtns = document.querySelectorAll('.attended-class');
+		for (let btn of allBtns) {
+			/*
+			let text = btn.textContent;
+			btn.style.backgroundColor = 'lightgreen';
+			if (text == 'Nao') {
+				btn.style.backgroundColor = 'red';
+			} else {
+				btn.style.backgroundColor = 'lightblue';
+			}
+			*/
+		}
+
+
+		/*
+		let takeAttendanceBtn = document.querySelector('.take-attendance-btn');
+		takeAttendanceBtn.addEventListener('click', e => {
+			let trTbody = document.querySelectorAll('.tr-tbody');
+			for (let tr of trTbody) {
+				
+			}
+		})
+
+		let attendedClass = document.querySelectorAll('.attended-class');
+		highLightAttendance();
+
+		function highLightAttendance() {
+			attendedClass = document.querySelectorAll('.attended-class');
+			for (let tag of attendedClass) {
+				if (tag.value == 'nao') {
+					tag.style.backgroundColor = 'red';
+				} else {
+					tag.style.backgroundColor = 'lightblue';
+				}
+			}
+		}
+
+		for (let tag of attendedClass) {
+			tag.addEventListener('change', e => {
+				setTimeout(() => {
+					highLightAttendance();
+				}, 100);
+			});
+		}
+		*/
+	</script>
+{% endblock %}

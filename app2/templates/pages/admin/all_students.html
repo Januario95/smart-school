@@ -1,0 +1,701 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Todos Estudantes</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-around;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+		.right-section {
+			width: 68%;
+			display: flex;
+			flex-direction: column;
+		}
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+
+
+		
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+            height: 26px;
+            width: 100%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 95%;
+			margin-top: 15px;
+			padding: 20px;
+			border-radius: 30px;
+			margin-bottom: 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section h4 {
+			margin: 0px 0px 10px 0px;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section th,
+		.result-section td {
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.filter-section {
+			width: 100%;
+			display: flex;
+			/*flex-direction: column;*/
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: center;
+			margin-bottom: 10px;
+		}
+		.row {
+			width: 15%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.parents-row {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.row label {
+			font-size: 12px;
+		}
+		.student-details {
+			font-weight: normal;
+			text-align: center;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			.student-page .left-section {
+				
+			}
+			.student-page .left-section .students-link {
+				height: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.filter-section {
+				flex-direction: column;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section {
+				width: 100%;
+			}
+
+			select,
+			input[type="text"],
+			input[type="submit"],
+			#id_password {
+				margin-top: 10px;
+				width: 100%;
+				max-width: 250px;
+				height: 25px;
+			}
+			.result-section th {
+				font-size: 11px;
+			}
+			.result-section td {
+				font-size: 10px;
+			}
+			.result-section th,
+			.result-section td {
+				padding: 4px 3px;
+			}
+		}
+		.no-result {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+		}
+
+		/* Student details styles */
+		.student-detail {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-info-section {
+			width: 90%;
+		}
+		.student-filter-section {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-filter-section a {
+			color: black;
+			padding: 5px;
+			font-size: 13px;
+			text-decoration: none;
+			border: 1px solid #ccc;
+			background-color: #f6f6f7;
+		}
+		.student-personal-detail {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-row-detail {
+			width: 330px;
+			display: flex;
+			flex-direction: column;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+
+		/* Student School details */
+		.student-semester-details {
+			margin-bottom: 15px;
+		}
+		.student-personal-row {
+			margin-bottom: 25px;
+		}
+		.row-personal-header {
+			padding: 0px;
+			margin: 0px 0px 5px 0px;
+			text-align: center;
+			font-size: 17px;
+		}
+		.student-personal-left {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			margin-top: 15px;
+		}
+		.student-personal-left span {
+			font-size: 14px;
+		}
+		.student-name-header {
+			margin: 10px 0px 0px 0px;
+			padding: 0px;
+			font-size: 25px;
+		}
+		.ver-detalhes,
+		.ver-presenca {
+			cursor: pointer;
+			border: 1px solid #26a2ad;
+			border-radius: 16px;
+			font-size: 11px;
+			padding: 3px 5px;
+			background-color: #46ACC2;
+			color: white;
+			transition: all 0.15s;
+		}
+		.ver-detalhes:active, .ver-presenca:active {
+			transform: scale(1.07);
+		}
+		.btn, input[type="submit"] {
+			transition: all 0.15s;
+			color: white;
+			background-color: #46ACC2;
+		}
+		.btn:active, input[type="submit"]:active {
+			transform: scale(1.05);
+			border: none;
+			outline: none;
+		}
+		textarea {
+            height: 56px;
+            width: 100%;
+			min-width: 90px;
+			max-width: 250px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			resize: none;
+        }
+		.send-message-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+		}
+		.send-message-row .btn {
+			margin-top: 7px;
+		}
+		.mensages-sent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-attendance {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-attendance-overall {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.student-test-mark {
+			margin-top: 10px;
+		}
+		.highlight-semester {
+			background-color: #f1eaea;
+		}
+		.student-test-marks {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.parent-messages-sent {
+			width: 100%;
+		}
+        .semester-info-div {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            padding: 10px;
+            border-radius: 35px;
+        }
+        .semester-info {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .row-loader {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.loader {
+			display: none;
+		  	border: 16px solid #f3f3f3;
+		  	border-radius: 50%;
+		  	border-top: 16px solid #3498db;
+		  	width: 80px;
+		  	height: 80px;
+		  	-webkit-animation: spin 1s linear infinite; /* Safari */
+		  	animation: spin 2s linear infinite;
+		}
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th {
+			font-size: 13px;
+		}
+		th,
+		td {
+			padding: 5px;
+		}
+		td {
+			font-size: 12px;
+		}
+        #myDiv {
+            min-width: 500px;
+            height: 370px;
+        }
+		
+        @media only screen and (max-width: 540px) {
+            #myDiv {
+                min-width: 350px;
+                height: 330px;
+            }
+        }
+	</style>
+{% endblock %}
+
+{% block inner_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'app2:detalhes_do_estudante' %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Lista de estudantes</span>
+			</a>
+			<a href="{% url 'app2:all_students' %}" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Todos estudantes</span>
+			</a>
+			<a href="{% url 'app2:notas_de_estudantes' %}" class="estudantes-notas students-link" title="Click para ver notas de estudantes">
+				<span>Notas de estudantes</span>
+			</a>
+			<a href="{% url 'app2:presenca_de_estudantes' %}" class="estudantes-presenca students-link" title="Click para ver lista de presenças">
+				<span>Presenca nas aulas</span>
+			</a>
+			<a href="{% url 'app2:register_student' %}" class="estudantes-registar" title="Click para registar professor">
+				<span>Registar Estudante</span>
+			</a>
+			<a href="{% url 'app2:register_student' %}" class="estudantes-registar" title="Click para registar estudante">
+				<span>Registar estudante</span>
+			</a>
+			<div class="section-indicator">
+				<h1>Estudantes</h1>
+			</div>
+		</div>
+		<div class="right-section">
+            <form method="post" class="filter-section">
+                <div class="row">
+                    <label for="id_year">Ano</label>
+                    {{ form.year }}
+                </div>
+                <div class="row">
+                    {% csrf_token %}
+                    <label style="color: #F6FBFB;">.</label>
+                    <input type="submit" class="btn btn-search" value="Pesquisar">
+                </div>
+            </form>
+            <div class="semester-info-div">
+                <div class="row-loader">
+                    <div class="loader"></div>
+                </div>
+                <div class="semester-info"></div>
+            </div>
+        </div>		
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		let marks = document.querySelectorAll('.mark');
+        for (let mark of marks) {
+			mark.style.fontWeight = 'bold';
+			if (parseFloat(mark.textContent) < 9) {
+				mark.style.color = 'red';
+			} else {
+				mark.style.color = 'teal';
+			}
+        }
+
+        let loader = document.querySelector('.loader');
+
+        function highLightTr() {
+            let allTrs = document.querySelectorAll('.tr-tbody');
+            for (let tr of allTrs) {
+                tr.addEventListener('click', e => {
+                    if (tr.classList.contains('highlight-tr')) {
+                        tr.classList.remove('highlight-tr');
+                    } else {
+                        tr.classList.add('highlight-tr');
+                    }
+                });
+            }
+        }
+
+        function getAnnotations(data) {
+            let dataVals = [];
+            for (let val of data) {
+                let tr = {
+                    x: 0,
+                    y: parseInt(val) + 0.7,
+                    xref: 'x',
+                    yref: 'y',
+                    text: val , 
+                    showarrow: false,
+                    arrowhead: 7,
+                }
+                dataVals.push(tr);
+            }
+			console.log(dataVals);
+            return dataVals;
+        }
+
+        function generateBarChart(div, year, data) {
+            let myDiv = document.createElement('div');
+            myDiv.setAttribute('id', 'myDiv');
+            div.appendChild(myDiv);
+
+            var males = {
+                x: data.classe_names,
+                y: data.all_males,
+                name: 'Homens',
+                type: 'bar',
+                marker: {
+                    color: '#46ACC2',
+                },
+                hovertemplate: '<i>Homens: %{y}</i>',
+            };
+
+            var females = {
+                x: data.classe_names,
+                y: data.all_females,
+                name: 'Mulheres',
+                type: 'bar',
+                hovertemplate: '<i>Mulheres: %{y}</i>',
+            };
+
+            var data = [males, females];
+            var layout = {
+                paper_bgcolor: 'rgba(245,246,249,1)',
+                plot_bgcolor: 'rgba(245,246,249,1)',
+                title: {
+                    display: true,
+                    text: `Numero de alunos por genero, matriculados em ${ year }`,
+                    font: {
+                        size: 12,
+                    }
+                },
+                yaxis: {
+					title: {
+						text: 'Numero de alunos',
+						font: {
+							size: 11,
+							// color: '#7f7f7f'
+						}
+					},
+					showticklabels: true,
+				},
+                // title: `Numero de alunos por genero, matriculados em ${ year }`,
+                barmode: 'group',
+                // barmode: 'stack',
+                hovermode: 'x',
+                // annotations: getAnnotations([data.all_values])
+            };
+            Plotly.newPlot('myDiv', data, layout);
+        }
+
+        function createTable(div, data) {
+            let table = document.createElement('table');
+            // table.style.width = '80%';
+            table.style.margin = '15px';
+
+            let thead = document.createElement('thead');
+            thead.innerHTML += `
+                <th style="border-top-left-radius:16px;border-bottom-left-radius:16px;">Classe</th>
+                <th>Homens</th>
+                <th>Mulheres</th>
+                <th style="border-top-right-radius:16px;border-bottom-right-radius:16px;">Total</th>
+            `;
+            table.appendChild(thead);
+
+            let tbody = document.createElement('tbody');
+
+            for (let row of data.data) {
+                let tr = document.createElement('tr');
+                tr.classList.add('tr-tbody');
+                tr.style.borderBottom = '1px solid #ccc';
+                let total = row.is_male + row.is_female;
+                tr.innerHTML += `
+                    <td style="text-align:center;">${ row.classe }</td>
+                    <td style="text-align:center;">${ row.male_count }</td>
+                    <td style="text-align:center;">${ row.female_count }</td>
+                    <td style="text-align:center;">${ row.total_male_female }</td>
+                `;
+                tbody.appendChild(tr);
+            }
+            let tr = document.createElement('tr');
+            tr.classList.add('tr-tbody');
+            tr.classList.add('highlight-tr');
+            tr.style.borderBottom = '1px solid #ccc';
+            tr.style.fontWeight = 'bold';
+            tr.innerHTML += `
+                <th style="text-align:center;">Total</th>
+                <td style="text-align:center;">${ data.total_male }</td>
+                <td style="text-align:center;">${ data.total_female }</td>
+                <td style="text-align:center;">${ data.total }</td>
+            `;
+            tbody.appendChild(tr);
+            table.appendChild(tbody);
+            div.appendChild(table);
+            highLightTr();
+        }
+
+        function loadStudentInfo(year) {
+            let div = document.querySelector('.semester-info');
+            div.innerHTML = '';
+
+            $(window).scrollTop(0);
+			loader.style.display = 'block';
+
+            fetch(`/get_all_students_in_a_year/${year}`)
+                .then(res => res.json())
+                .then(data => {
+                    // console.log(data);
+                    
+                    if (data.data.length > 0) {
+                        let h3 = document.createElement('h3');
+                        h3.textContent = `Numero de alunos matriculados em ${ year }`;
+                        div.appendChild(h3);
+                        
+                        createTable(div, data);
+                        generateBarChart(div, year, data);
+                    } else {
+                        let h5 = document.createElement('h5');
+                        h5.textContent = `Nao existem estudantes matriculados em ${ year }`;
+                        div.appendChild(h5);
+                    }
+                    loader.style.display = 'none';
+                })
+                .catch(err => console.error(err));
+        }
+
+        let btn = document.querySelector('.btn-search');
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            let year = document.getElementById('id_year');
+            loadStudentInfo(year.value);
+        });
+
+		let allTrs = document.querySelectorAll('.tr-tbody');
+		for (let tr of allTrs) {
+			tr.addEventListener('click', e => {
+				if (tr.classList.contains('highlight-tr')) {
+					tr.classList.remove('highlight-tr');
+				} else {
+					tr.classList.add('highlight-tr');
+				}
+			});
+		}
+
+		let urls1 = ['estudantes-detalhes', 'estudantes-todos', 'estudantes-notas', 'estudantes-presenca'];
+		
+		checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls1) {
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-link-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-link-student');
+				}
+			}
+		}
+	</script>
+{% endblock %}
+

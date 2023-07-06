@@ -1,0 +1,533 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Lista de Estudantes</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-evenly;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+
+		.right-section {
+			width: 68%;
+			display: flex;
+			flex-direction: column;
+		}
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+
+
+		
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+            height: 26px;
+            width: 100%;
+			min-width: 90px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 95%;
+			margin-top: 15px;
+			padding: 20px;
+			border-radius: 38px;
+			margin-bottom: 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section h4 {
+			margin: 0px 0px 10px 0px;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section th,
+		.result-section td {
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.filter-section {
+			width: 100%;
+			display: flex;
+			/*flex-direction: column;*/
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: center;
+		}
+		.row {
+			width: 15%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.parents-row {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.row label {
+			font-size: 12px;
+		}
+		.student-details {
+			font-weight: normal;
+			text-align: center;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+			.student-page .left-section {
+				
+			}
+			.student-page .left-section .students-link {
+				height: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.filter-section {
+				flex-direction: column;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section {
+				width: 100%;
+			}
+
+			select,
+			input[type="text"],
+			input[type="submit"],
+			#id_password {
+				margin-top: 10px;
+				width: 100%;
+				max-width: 250px;
+				height: 25px;
+			}
+			.result-section th {
+				font-size: 11px;
+			}
+			.result-section td {
+				font-size: 10px;
+			}
+			.result-section th,
+			.result-section td {
+				padding: 4px 3px;
+			}
+		}
+		.no-result {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+		}
+
+		/* Student details styles */
+		.student-detail {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-info-section {
+			width: 90%;
+		}
+		.student-filter-section {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-filter-section a {
+			color: black;
+			padding: 5px;
+			font-size: 13px;
+			text-decoration: none;
+			border: 1px solid #ccc;
+			background-color: #f6f6f7;
+		}
+		.student-personal-detail {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-row-detail {
+			width: 330px;
+			display: flex;
+			flex-direction: column;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+		.student-row-detail span {
+			margin-bottom: 8px;
+			font-size: 13px;
+		}
+		.student-row-detail-left {
+			margin-right: 10px;
+		}
+		.student-row-detail-right {
+			margin-left: 10px;
+		}
+		.student-school-detail {
+			display: none;
+		}
+
+		/* Student School details */
+		.student-semester-details {
+			margin-bottom: 15px;
+		}
+		.student-personal-row {
+			margin-bottom: 25px;
+		}
+		.row-personal-header {
+			padding: 0px;
+			margin: 0px 0px 5px 0px;
+			text-align: center;
+			font-size: 17px;
+		}
+		.student-personal-left {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			margin-top: 15px;
+		}
+		.student-personal-left span {
+			font-size: 14px;
+		}
+		.student-name-header {
+			margin: 10px 0px 0px 0px;
+			padding: 0px;
+			font-size: 25px;
+		}
+		.ver-detalhes,
+		.ver-presenca {
+			cursor: pointer;
+			border: 1px solid #26a2ad;
+			border-radius: 16px;
+			font-size: 11px;
+			padding: 3px 5px;
+			background-color: #46ACC2;
+			color: white;
+			transition: all 0.15s;
+		}
+		.ver-detalhes:active, .ver-presenca:active {
+			transform: scale(1.07);
+		}
+		.btn, input[type="submit"] {
+			transition: all 0.15s;
+			color: white;
+			background-color: #46ACC2;
+		}
+		.btn:active, input[type="submit"]:active {
+			transform: scale(1.05);
+			border: none;
+			outline: none;
+		}
+		textarea {
+            height: 56px;
+            width: 100%;
+			min-width: 90px;
+			max-width: 250px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			resize: none;
+        }
+		.send-message-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+		}
+		.send-message-row .btn {
+			margin-top: 7px;
+		}
+		.mensages-sent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-attendance {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-attendance-overall {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.student-test-mark {
+			margin-top: 10px;
+		}
+		.highlight-semester {
+			background-color: #f1eaea;
+		}
+		.student-test-marks {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.parent-messages-sent {
+			width: 100%;
+		}
+	</style>
+{% endblock %}
+
+{% block inner_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'app2:detalhes_do_estudante' %}" class="estudantes-detalhes students-link" title="Click para ver lista de estudantes">
+				<span>Lista de estudantes</span><span style="color:teal;font-weight:bold;">☰</span>
+			</a>
+			<a href="{% url 'app2:all_students' %}" class="estudantes-todos students-link" title="Click para ver lista de estudantes">
+				<span>Todos estudantes</span><span style="color:teal;font-weight:bold;">☰</span>
+			</a>
+			<a href="{% url 'app2:notas_de_estudantes' %}" class="estudantes-notas students-link" title="Click para ver notas de estudantes">
+				<span>Notas de estudantes</span><span>✍</span>
+			</a>
+			<a href="{% url 'app2:presenca_de_estudantes' %}" class="estudantes-presenca students-link" title="Click para ver lista de presenças">
+				<span>Presenca nas aulas</span><span>✅</span>
+			</a>
+			<a href="{% url 'app2:register_student' %}" class="estudantes-registar" title="Click para registar estudante">
+				<span>Registar estudante</span>
+			</a>
+			<a href="{% url 'app2:admin_regiser_student_subject' %}" class="estudantes-registar-disciplina" title="Click para registar disciplina">
+				Adicionar disciplina
+			</a>
+			<div class="section-indicator">
+				<h1>Estudantes</h1>
+			</div>
+		</div>
+		<div class="right-section">
+			{% block student_form %}
+				<form method="post" class="filter-section">
+					<div class="row">
+						<label for="id_year">Year</label>
+						{{ form.year }}
+					</div>
+					<div class="row">
+						<label for="id_semester">Semester</label>
+						{{ form.semester }}
+					</div>
+					<div class="row">
+						<label value="default">Selecione a classe</label>
+						{{ form.classe }}
+					</div>
+					<div class="row">
+						<label value="default">Selecione a turma</label>
+						{{ form.turma }}
+					</div>
+					<div class="row">
+						<label for="id_gender">Genero</label>
+						{{ form.gender }}
+					</div>
+					<div class="row">
+						{% csrf_token %}
+						<label style="color: #F6FBFB;">.</label>
+						<input type="submit" class="btn" value="Pesquisar">
+					</div>
+				</form>
+			{% endblock %}
+
+			{% block student_info %}
+				<div class="result-section">
+					{% if new_students %}
+						<h4>
+							Lista de Estudantes
+							{% if gender_name == 'masculino' %}
+								(Homens)
+							{% elif gender_name == 'feminino' %}
+								(Mulheres)
+							{% endif %}
+							{% if classe_name %}da {{ classe_name }}{% endif %}
+							{% if turma_name %} Turma {{ turma_name }},{% endif %}
+							{% if semester_name %} {{ semester_name}} Semestre{% endif%}
+							{% if year_name %} de {{ year_name }}{% endif %}
+						</h4>
+						
+						<table>
+							<thead>
+								<tr>
+									<th style="border-top-left-radius:35px;border-bottom-left-radius:35px;">#</th>
+									<th style="text-align:left;">Primeiro Nome</th>
+									<th style="text-align:left;">Ultimo Nome</th>
+									<th style="text-align:left;">Email</th>
+									<th style="text-align:center;border-top-right-radius:35px;border-bottom-right-radius:35px;">Detalhes</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for student in new_students  %}
+									<tr class="tr-tbody">
+										<td style="text-align:center;">{{ forloop.counter }}</td>
+										<td>{{ student.first_name }}</td>
+										<td>{{ student.last_name }}</td>
+										</td>
+										<td>{{ student.email }}
+										</td>
+										<td class="student-details">
+											<a href="{% url 'app2:student_personal_details' student.id %}" title="Ver dados de {{ student.fullname }}">
+												Ver
+											</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					{% else %}
+						<p class="no-result">Nao ha resultados para a pesquisa.</p>
+					{% endif %}
+				</div>
+			{% endblock %}
+		</div>		
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		let marks = document.querySelectorAll('.mark');
+        for (let mark of marks) {
+			mark.style.fontWeight = 'bold';
+			if (parseFloat(mark.textContent) < 9) {
+				mark.style.color = 'red';
+			} else {
+				mark.style.color = 'teal';
+			}
+        }
+
+		//let allTrs = $('.tr-tbody');
+		//allTrs.click(function() {
+		//	this.toggleClass('hide-tr');
+		//})
+		let allTrs = document.querySelectorAll('.tr-tbody');
+		for (let tr of allTrs) {
+			tr.addEventListener('click', e => {
+				if (tr.classList.contains('highlight-tr')) {
+					tr.classList.remove('highlight-tr');
+				} else {
+					tr.classList.add('highlight-tr');
+				}
+			});
+		}
+
+		let urls1 = ['estudantes-detalhes', 'estudantes-todos', 'estudantes-notas', 'estudantes-presenca'];
+		
+		checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls1) {
+				// console.log(localhost + url, localhost + url + '/' === window.location.href)
+				// console.log(document.querySelector(`.${url}`));
+				// console.log(localhost + url, localhost + url + '/')
+
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-link-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-link-student');
+				}
+			}
+		}
+	</script>
+{% endblock %}
+

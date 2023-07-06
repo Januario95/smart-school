@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title>Login</title>    
+
+	<style>
+		html, body {
+		    background-color: #46ACC2;
+		    font-family: 'Roboto', sans-serif;
+			padding: 0px;
+			margin: 0px;
+		}
+		.login-div {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 100px;
+		}
+		.form {
+			animation-name: launch;
+			animation-duration: 4s;
+			position: relative;
+			z-index: 1;
+			background: #FFFFFF;
+			max-width: 310px;
+			margin: 0 auto 100px;
+			padding: 20px;
+			text-align: center;
+			border-radius: 20px;
+			box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+		}
+		.form input[type="submit"] {
+			text-transform: uppercase;
+			outline: 0;
+			/* background: #FF6229; */
+			background-color: #46ACC2;
+			width: 100%;
+			border: 0;
+			margin-top: 8px;
+			padding: 5px;
+			color: #FFFFFF;
+			font-size: 10px;
+			border-radius: 16px;
+			-webkit-transition: all 0.3 ease;
+			transition: all 0.3 background-color;
+			cursor: pointer;
+		}
+		.fa {
+			margin-right: 10px;
+			cursor: pointer;
+			font-size: 15px;
+		}
+		.chBox2 {
+			display: none;
+		}
+		.student-info-div {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-info-div span {
+			border-bottom: 1px solid #ccc;
+			margin-bottom: 5px;
+			font-size: 14px;
+		}
+		.confirm-presence {
+			background-color: red;
+			border-radius: 12px;
+			padding: 4px;
+			margin-bottom: 6px;
+		}
+		.confirm-presence span {
+			font-size: 12px;
+		}
+		.presence-message {
+			background-color:#46ACC2;
+			border-radius: 12px;
+			padding: 4px;
+			margin-bottom: 6px;
+		}
+		.presence-message span {
+			font-size: 12px;
+			color: white;
+		}
+	</style>
+</head>
+<body>
+	<div class="login-div">
+	 	<div class="form">
+			<img src="{% static qrcode %}" alt="">
+		</div>
+	 </div>
+
+	<script>
+		
+	</script>
+</body>
+</html>

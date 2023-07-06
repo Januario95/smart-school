@@ -1,0 +1,509 @@
+{% extends "baseAdmin.html" %}
+{% load static %}
+{% load format_words %}
+
+{% block title %}
+	<title>Lista de Professores</title>
+{% endblock %}
+
+{% block style %}
+	<style> 
+		.student-page {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 20px;
+		}
+		.left-section {
+			width: 25%;
+			max-width: 250px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background-color: white;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+		.left-section a {
+			display: flex;
+			justify-content: space-evenly;
+			width: 97%;
+			text-decoration: none;
+			background-color: #f6f6f7;
+
+			color: black;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			padding-left: 10px;
+			text-decoration: none;
+			border-bottom: 1px solid #ccc;
+		}
+		.right-section-div {
+			width: 68%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			background-color: white;
+			padding: 15px;
+			border-radius: 40px;
+		}
+		.attendance-link-option {
+			max-width: 400px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.attendance-link-option a {
+			padding: 6px 7px;
+			border: 1px solid #ccc;
+			text-decoration: none;
+			font-size: 13px;
+			color: black;
+			background-color: #f1eaea;
+		}
+		.attendance-result-section {
+			width: 100%;
+			padding-top: 10px;
+		}
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+
+
+		
+		input[type="text"],
+		input[type="submit"],
+		input[type="datetime-local"],
+		#id_password {
+            height: 26px;
+            width: 100%;
+			min-width: 40px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+        }
+		input[type="date"],
+		input[type="month"],
+		input[type="time"] {
+			height: 26px;
+            width: 100%;
+			min-width: 20px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+		}
+		select, button {
+			height: 26px;
+            width: 100%;
+			min-width: 40px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			font-size: 12px;
+		}
+		input[type="submit"], button {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 1px solid lightblue;
+		}
+		.result-section {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 95%;
+			margin-top: 15px;
+			padding: 20px;
+			border-radius: 30px;
+			margin-bottom: 10px;
+			background-color: white;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section h4 {
+			margin: 0px 0px 10px 0px;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section th,
+		.result-section td {
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.filter-section {
+			width: 100%;
+			display: flex;
+			/*flex-direction: column;*/
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: center;
+		}
+		.row {
+			width: 15%;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.row label {
+			font-size: 12px;
+		}
+		.student-details {
+			font-weight: normal;
+			text-align: center;
+		}
+		.link {
+			text-decoration: none;
+		}
+		td a {
+			text-decoration: none;
+		}
+
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+		.active-teacher-attendance-link {
+			color: white !important;
+			background-color: #46ACC2 !important;
+		}
+
+		@media only screen and (max-width: 768px) {
+			.student-page {
+				width: 90%;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin: 0px;
+			}
+			.filter-section {
+				flex-direction: column;
+			}
+			.left-section {
+				width: 100%;
+			}
+			.right-section-div {
+				width: 100%;
+				padding: 10px;
+				margin-top: 10px;
+			}
+
+			.result-section th {
+				font-size: 11px;
+			}
+			.result-section td {
+				font-size: 10px;
+			}
+			.result-section th,
+			.result-section td {
+				padding: 4px 3px;
+			}
+		}
+		.no-result {
+			padding: 0px;
+			margin: 0px;
+			text-align: center;
+			font-size: 15px;
+			font-weight: bold;
+            margin-bottom: 10px;
+		}
+
+		/* Student details styles */
+		.student-detail {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-info-section {
+			width: 90%;
+		}
+		.student-filter-section {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-filter-section a {
+			color: black;
+			padding: 5px;
+			font-size: 13px;
+			text-decoration: none;
+			border: 1px solid #ccc;
+			background-color: #f6f6f7;
+		}
+		.row-detail-header {
+			border-bottom: 2px solid teal;
+		}
+
+		/* Student School details */
+		.student-semester-details {
+			margin-bottom: 15px;
+		}
+		.student-personal-row {
+			margin-bottom: 25px;
+		}
+		.ver-detalhes,
+		.ver-presenca {
+			cursor: pointer;
+			border: 1px solid #26a2ad;
+			border-radius: 16px;
+			font-size: 11px;
+			padding: 3px 5px;
+			background-color: #46ACC2;
+			color: white;
+			transition: all 0.15s;
+		}
+		.ver-detalhes:active, .ver-presenca:active {
+			transform: scale(1.07);
+		}
+		.btn, input[type="submit"] {
+			transition: all 0.15s;
+			color: white;
+			background-color: #46ACC2;
+		}
+		.btn:active, input[type="submit"]:active {
+			transform: scale(1.05);
+			border: none;
+			outline: none;
+		}
+		textarea {
+            height: 56px;
+            width: 100%;
+			min-width: 90px;
+			max-width: 250px;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            text-align: center;
+            outline: none;
+			resize: none;
+        }
+		.send-message-row {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+			margin-bottom: 8px;
+		}
+		.send-message-row .btn {
+			margin-top: 7px;
+		}
+		.mensages-sent {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.student-attendance {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.student-attendance-overall {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.student-test-mark {
+			margin-top: 10px;
+		}
+		.highlight-semester {
+			background-color: #f1eaea;
+		}
+		.student-test-marks {
+			margin-top: 10px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.parent-messages-sent {
+			width: 100%;
+		}
+		.tr-tbody {
+			border-bottom: 1px solid #ccc;
+		}
+	</style>
+{% endblock %}
+
+{% block inner_style %}{% endblock %}
+
+{% block content %}
+	<div class="student-page">
+		<div class="left-section">
+			<a href="{% url 'app2:teacher_list_details' %}" class="professores-detalhes" title="Click para ver lista de professores">
+				<span>Lista de professores</span>
+			</a>
+			<a href="{% url 'app2:teacher_attedances_page' %}" class="professores-presenca" title="Click para ver lista de presenças">
+				<span>Presenças nas aulas</span>
+			</a>
+			<a href="{% url 'app2:teacher_timetables' %}" class="professores-horarios" title="Click para ver horarios">
+				<span>Horarios</span>
+			</a>
+			<a href="{% url 'app2:register_teacher' %}" class="estudantes-registar" title="Click para registar professor">
+				<span>Registar Professor</span>
+			</a>
+			<div class="section-indicator">
+				<h1>Professores</h1>
+			</div>
+		</div>
+		<div class="right-section-div">
+			<div class="attendance-link-option">
+				<a href="{% url 'app2:teacher_take_attendance' %}" class="professores-actualizar-presenca" style="border-top-left-radius:16px;border-bottom-left-radius:16px;">Actualizar Presença</a>
+				<a href="{% url 'app2:teacher_check_attendance' %}" class="professores-ver-presenca" style="border-top-right-radius:16px;border-bottom-right-radius:16px;">Ver Presenças</a>
+			</div>
+			<div class="attendance-result-section">
+				{% block attendance_result_section %}
+				{% endblock %}
+			</div>
+		</div>		
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>		
+		function formatDate(time) {
+			if (parseInt(time) < 10) {
+				time = '0' + time;
+			}
+			return time;
+		}
+
+		/*
+		let classDateTimes = document.querySelectorAll('.class-datetime');
+		for (let classDateTime of classDateTimes) {
+			let today = new Date();
+			today_ = today.getFullYear() + '-' + formatDate(today.getMonth()) + '-' + formatDate(today.getDate());
+			now = formatDate(today.getHours()) + ':' + formatDate(today.getMinutes()) + ':' + formatDate(today.getSeconds());
+			classDateTime.value = today_ + 'T' + now;
+		}
+		*/
+
+		
+		let classDates = document.querySelectorAll('.class-date');
+		for (let classDate of classDates) {
+			let today = new Date();
+			today = today.getFullYear() + '-' + formatDate(today.getMonth()) + '-' + formatDate(today.getDate());
+			classDate.value = today;
+		}
+		
+
+		let classTimes = document.querySelectorAll('.class-time');
+		for (let classTime of classTimes) {
+			let today = new Date();
+			now = formatDate(today.getHours()) + ':' + formatDate(today.getMinutes()) + ':' + formatDate(today.getSeconds());
+			classTime.value = now;
+		}
+
+		let MONTHS = {
+			'00': 'Janeiro', '01': 'Fevereiro',  '02': 'Março', 
+			'03': 'Abril', '04': 'Maio', '05': 'Junho', 
+			'06': 'Julho',  '07': 'Augusto', '08': 'Setembro',
+			'09': 'Outubro', '10': 'Novembro','11': 'Dezembro'
+		}
+
+		function formatDateAttended(date) {
+			date = date.split('-');
+			let year, month, day;
+			year = date[0];
+			month = MONTHS[date[1]]
+			day = date[2];
+			return day + ' de ' + month + ' de ' + year;
+		}
+
+		function updateTeacherAttendance(teacherName, teacherPk, classeName, turmaName) {
+			let classDate = document.getElementById(`class-date-${ teacherPk }`);
+			let classTime = document.getElementById(`class-time-${ teacherPk }`);
+			let attendedClass = document.getElementById(`attended-class-${ teacherPk }`);
+			let subjectName = document.getElementById(`teacher-subject-${ teacherPk }`);
+
+			let attended;
+			if (parseInt(attendedClass.value) == 1) {
+				attended = 'deu';
+			} else {
+				attended = 'nao deu'
+			}
+			let text = `Confirma que o professor ${ teacherName } ${ attended } aulas no dia ${ formatDateAttended(classDate.value) } na disciplina de ${ subjectName.value }?`
+			let confirm_ = window.confirm(text);
+			console.log(confirm_)
+
+			
+			fetch(`/capture_teacher_attendance_api/${teacherPk}/${classDate.value}/${classTime.value}/${attendedClass.value}/${classeName}/${turmaName}/`)
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+				})
+				.catch(err => console.error(err));
+		}
+
+		//let allTrs = $('.tr-tbody');
+		//allTrs.click(function() {
+		//	this.toggleClass('hide-tr');
+		//})
+		/*
+		let allTrs = document.querySelectorAll('.tr-tbody');
+		for (let tr of allTrs) {
+			tr.addEventListener('click', e => {
+				if (tr.classList.contains('highlight-tr')) {
+					tr.classList.remove('highlight-tr');
+				} else {
+					tr.classList.add('highlight-tr');
+				}
+			});
+		}
+		*/
+
+		urls2 = ['professores-actualizar-presenca', 'professores-ver-presenca'];
+		// console.log(urls2);
+
+		checkActiveLink();
+		function checkActiveLink() {	
+			for (let url of urls2) {
+				// console.log(localhost + url, localhost + url + '/' === window.location.href)
+				// console.log(document.querySelector(`.${url}`));
+				console.log(localhost + url, localhost + url + '/')
+
+				if (localhost + url + '/' === window.location.href) {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.add('active-teacher-attendance-link');
+					let header = document.querySelector('.profesores');
+					header.classList.add('active-link');
+				} else {
+					let currentURL = document.querySelector(`.${url}`);
+					currentURL.classList.remove('active-teacher-attendance-link');
+				}
+			}
+		}
+	</script>
+{% endblock %}
+

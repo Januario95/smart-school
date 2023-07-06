@@ -1,0 +1,177 @@
+{% extends "baseAdmin.html" %}
+
+{% block title %}
+	<title>Notas de Estudantes</title>
+{% endblock %}
+
+{% block style %}
+	<style>
+		.student-list {
+			display: flex;
+			flex-wrap: wrap;
+			width: 100%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 50px;
+		}
+		.no-filter-selection {
+			outline: 1px solid red;
+		}
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+			margin-top: 10px;
+			width: 200px;
+			height: 32px;
+			text-align: center;
+			border: 1px solid #333;
+			border-radius: 5px;
+		}
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus,
+		#id_password:focus {
+			border: none;
+			outline: 2px solid lightblue;
+		}
+		.result-section {
+			width: 100%;
+			margin-top: 20px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.result-section tr {
+			border-bottom: 1px solid #ccc;
+		}
+		.result-section th,
+		.result-section td {
+			/*border: 1px solid #ccc;*/
+			padding: 5px;
+		}
+		.result-section th {
+			font-size: 13px;
+		}
+		.result-section td {
+			font-size: 12px;
+		}
+		.subject-name {
+			width: 87px;
+			text-align: center;
+		}
+		td a {
+			text-decoration: none;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="student-list">
+		<div class="filter-section">
+			<form method="post">
+				{{ form }}
+				{% csrf_token %}
+				<input type="submit" class="btn" value="Pesquisar" name="">
+			</form>
+		</div>
+		<div class="result-section">
+			{% if students %}
+				<!--{% now "Y-m-d" %}-->
+				<table>
+					<thead>
+						<tr>
+							<th rowspan="2">#</th>
+							<th class="first-name" rowspan="2">Primeiro nome</th>
+							<th class="last-name" rowspan="2">Ultimo nome</th>
+							<th class="subject" colspan="{{ student.subjects|length }}">Media das Disciplinas</th>
+							<th class="average" rowspan="2">Media Final</th>
+							<th class="obs" rowspan="2">Observacao</th>
+							<th rowspan="2">Selecionar</th>
+						</tr>
+						<tr>
+							{% for subject in student.subjects %}
+								<td class="subject-name">{{ subject.subject.name }}</td>
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for student in students %}
+							<tr class="row-{{ forloop.counter }}">
+								<td>{{ forloop.counter }}</td>
+								<td>
+									<a href="{% url 'app2:student_personal_details' student.id %}">{{ student.first_name }}</a>
+								</td>
+								<td>{{ student.last_name }}</td>
+								{% for subject in student.subjects  %}
+									<td class="nota">{{ subject.tests_avg  }}</td>
+								{% endfor %}
+								<td class="nota bold-test">{{ student.average }}</td>
+								<td class="{{ student.class_name }} remark bold-test">{%if student.average >= 10 %}Aprovado{% else %}Reprovado{% endif %}</td>
+								<td class="nota">
+									<button class="select-student btn-{{ forloop.counter }} select-button">Select</button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<h4>Nao há resultados para a pesquisa.</h4>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let marks = document.querySelectorAll('.nota');
+		let remarks = document.querySelectorAll('.remark');
+		for (let remark of remarks) {
+			if (remark.textContent === 'Aprovado') {
+				remark.classList.add('green-color-mark');
+			} else {
+				remark.classList.add('red-color-mark');
+			}
+		}
+
+		for (let mark of marks) {
+			if (parseFloat(mark.textContent) >= 10) {
+				mark.classList.add('pass');
+			} else {
+				mark.classList.add('fail');
+			}
+		}
+
+		const arrayRange = (start, stop, step=1) => {
+			return Array. from(
+				{length: (stop - start) / step + 1 },
+				(value, index) => start + index * step)
+		}
+
+		let rowIds = arrayRange(1, 100);
+
+
+		for (let btnId of rowIds) {
+			try	{
+				let btn = document.querySelector(`.btn-${btnId}`);
+				let tr = $(`.row-${btnId}`)
+				btn.addEventListener('click', e => {
+					if (btn.textContent === 'Select') {
+						btn.textContent = 'Deselect';
+					} else {
+						btn.textContent = 'Select';
+					}
+					tr.toggleClass('highlight-tr');
+				});
+			} catch (e) {
+				// console.log(e);
+			}
+		}
+	</script>
+{% endblock %}

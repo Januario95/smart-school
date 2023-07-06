@@ -1,0 +1,309 @@
+{% extends "pages/admin/student_details.html" %}
+
+{% block title %}
+	<title>Desempenho escolar</title>
+{% endblock %}		
+
+{% block student_form %}
+{% endblock %}
+
+{% block student_data %}
+	<div class="student-personal-detail"></div>
+		<div class="student-personal-row student-personal-left">
+			<span>Selecione o ano para mostrar desempenho academico</span>
+			<form method="post" class="filter-section">
+				<div class="row">
+					<label for="id_year">Year</label>
+					{{ form.year }}
+				</div>
+				<div class="row">
+					{% csrf_token %}
+					<label style="color: #F6FBFB;">.</label>
+					<input type="submit" class="btn" value="Pesquisar">
+				</div>
+			</form>
+		</div>
+
+		<div class="student-semester-details">
+			{% if semesters %}
+				<table>
+					<thead>
+						<tr>
+							<th style="border-top-left-radius:16px;">Ano</th>
+							<th>Semestre</th>
+							<th>Classe</th>
+							<th>Turma</th>
+							<th style="border-top-right-radius:16px;">Notas</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for semester in semesters %}
+							<tr style="border-bottom: 1px solid #ccc;" class="ver-detalhes-notas ver-detalhes-notas-{{ semester.name|lower }}">
+								<td style="text-align:center;">{{ semester.year }}</td>
+								<td style="text-align:center;">{{ semester.name }}</td>
+								<td style="text-align:center;">{{ semester.classe }}</td>
+								<td style="text-align:center;">{{ semester.turma }}</td>
+								<td style="text-align:center;">
+									<button onclick="loadSemesterMarks('{{ semester.name }}', '{{ student.pk }}', '{{ semester.year }}', '{{ semester.classe }}', '{{ semester.turma }}')" class="ver-detalhes ver-detalhes-{{ semester.name|lower }}">Ver notas</button>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			{% else %}
+				<h5 style="text-align:center;">
+					Nenhuma actividade academica encontrada
+					{% if year %}
+						para o ano {{ year }}
+					{% endif %}
+				</h5>
+			{% endif %}
+		</div>
+
+		<div class="student-personal-row student-personal-right">
+			<div class="student-test-marks"></div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+
+		let urls2 = ['estudantes-detalhes-dados-pessoais', 'estudantes-detalhes-dados-escolares',
+					 'estudantes-detalhes-encarregado-de-educacao', 'estudantes-detalhes-desempenho-academico'];
+
+		let activeURL = window.location.href.split('/');
+		let activeUrlID = activeURL[4];
+
+		checkActiveLink2();
+		function checkActiveLink2() {
+			for (let url of urls2) {
+				let u = localhost + url + `/${activeUrlID}/`;
+				u = u.split('/')[3]
+				u = u.split('detalhes')[0]
+				u += 'detalhes';
+				
+				let currentURL = document.querySelector(`.${url}`);
+				if (localhost + url + `/${activeUrlID}/` === window.location.href) {
+					currentURL.classList.add('active-sublink-student');
+					let header = document.querySelector('.estudantes');
+					header.classList.add('active-link');
+
+					let headerLeft = document.querySelector('.estudantes-detalhes');
+					headerLeft.classList.add('active-link-student');
+				} else {
+					currentURL.classList.remove('active-sublink-student');
+				}
+			}
+		}
+
+		function highLightPresenceTr(semesterName) {
+			let trs = document.querySelectorAll('.ver-detalhes-notas');
+			for (let tag of trs) {
+				tag.classList.remove('highlight-semester');
+			}
+			let tr = $(`.ver-detalhes-notas-${ semesterName.toLowerCase() }`);
+			tr.toggleClass('highlight-semester');
+		}
+
+		function highLightMark(mark) {
+			let tag;
+			if (parseFloat(mark) < 10) {
+				tag = `<span style="color:red;font-weight:bold;">${ mark }</span>`;
+			} else {
+				tag = `<span style="color:teal;font-weight:bold;">${ mark }</span>`;
+			}
+			return tag;
+		}
+		function highLightMedia(mark) {
+			let tag;
+			if (parseFloat(mark) < 10) {
+				tag = `<td style="text-align:center;background-color:#46ACC2;color:yelow;font-weight:bold;">${ mark }</td>`;
+			} else {
+				tag = `<td style="text-align:center;background-color:#46ACC2;color:white;font-weight:bold;">${ mark }</span>`;
+			}
+			return tag;
+		}
+
+		function getAnnotations(marks) {
+			let data = [];
+			let index = 0;
+			for (let mark of marks) {
+				let row = {
+					x: index,
+					y: parseFloat(mark)+0.8,
+					xref: 'x',
+					yref: 'y',
+					text: parseFloat(mark),
+					showarrow: false,
+					arrowhead: 7,
+					font: {
+						size: 13,
+					}
+				}
+				data.push(row)
+				index += 1;
+			}
+			return data
+		}
+
+
+		function loadBar2(subjects, marks) {
+			var barColors = ["red", "green","blue","orange","brown", "teal"];
+			var xValues = subjects;
+			var yValues = marks;
+
+			new Chart("myChart2", {
+				type: "bar",
+				data: {
+					labels: xValues,
+					datasets: [{
+						backgroundColor: barColors,
+						data: yValues
+					}]
+				},
+				options: {
+					legend: {display: false},
+					title: {
+						display: true,
+						text: "Medias dos tests"
+					},
+					scales: {
+						y: {
+						  min: parseInt(marks[0]) + 3,
+						}
+					  }
+				}
+			});
+		}
+		
+		function loadBar(subjects, marks) {
+			var xArray = subjects;
+			var yArray = marks;
+			let annotations = getAnnotations(marks);
+
+			var data = [{
+				x: xArray,
+				y: yArray,
+				type: 'bar',
+				marker: {
+					color: ["#115f9a", "#1984c5", "#22a7f0", "#48b5c4", "#76c68f", "#a6d75b"],
+					// color: ["#54bebe", "#76c8c8", "#98d1d1", "#badbdb", "#dedad2", "#e4bcad"],
+				},
+				hovertemplate: '<i>%{y} valores</i>',
+			}];
+			
+			var layout = {
+				paper_bgcolor: 'rgba(245,246,249,1)',
+  				plot_bgcolor: 'rgba(245,246,249,1)',
+				title: 'Medias dos tests',
+				autosize: true,
+				width: 400,
+				height: 350,
+				showlegend: false,
+				xaxis: {
+					
+				},
+				yaxis: {
+					title: {
+						text: 'Notas',
+						font: {
+							size: 12,
+							// color: '#7f7f7f'
+						}
+					},
+					showticklabels: false,
+				},
+				annotations: annotations,
+			}
+			Plotly.newPlot('myChart', data, layout=layout);
+	    }
+
+
+		function createTestMarksTable(data) {
+			let data_ = data.data;
+			let test_names = data.test_names;
+			let subjects = data.subjects;
+			let marks = data.media_values;
+			let media_final = data.media_final;
+			let subjects_for_bar_chart = data.subjects_for_bar_chart;
+			let marks_for_bar_chart = data.marks_for_bar_chart;
+
+			let div = document.querySelector('.student-test-marks');
+			div.innerHTML = '';
+
+			let table = document.createElement('table');
+			table.style.marginTop = '10px';
+			let thead = document.createElement('thead');
+			let tr = document.createElement('tr');
+			tr.innerHTML += `<th style="border-top-left-radius:16px;text-align:center;">Disciplina</th>`;
+			for (let test_name of test_names) {
+				tr.innerHTML += `<th text-align:center;>${ test_name }</th>`;
+			}
+			tr.innerHTML += `<th style="border-top-right-radius:16px;text-align:center;">Media</th>`;
+			thead.append(tr);
+			table.appendChild(thead);
+			div.appendChild(table);
+
+			let tbody = document.createElement('tbody');
+
+			for (let row of data_) {
+				let tr = document.createElement('tr');
+				tr.style.borderBottom = '1px solid #ccc';
+				tr.innerHTML += `
+					<td style="text-align:center;">${ row.subject_name }</td>
+					<td style="text-align:center;">${ highLightMark(row.test_mark_1) }</td>
+					<td style="text-align:center;">${ highLightMark(row.test_mark_2) }</td>
+					<td style="text-align:center;">${ highLightMark(row.test_mark_3) }</td>
+					<td style="text-align:center;">${ highLightMark(row.media) }</td>
+				`;
+				tbody.appendChild(tr);
+			}
+			tr = document.createElement('tr');
+			tr.innerHTML += `
+				<th style="text-align:center;">Media Final</th>
+				<th colspan="3"></th>
+				<th>${ media_final }</th>
+			`;
+			tr.style.backgroundColor = '#46ACC2';
+			tr.style.fontWeight = 'bold';
+			tr.style.color = 'white';
+			tbody.appendChild(tr);
+			table.appendChild(tbody);
+
+
+			let innerDiv = document.createElement('div');
+			innerDiv.setAttribute('id', 'myChart');
+			innerDiv.style.marginTop = '15px';
+			div.appendChild(innerDiv); 
+			loadBar(subjects_for_bar_chart, marks_for_bar_chart);
+
+			/*
+			let canvas = document.createElement('canvas');
+			canvas.setAttribute('id', 'myChart2');
+			canvas.style.marginTop = '15px';
+			canvas.style.width = '200px';
+			div.appendChild(canvas);
+			loadBar2(subjects_for_bar_chart, marks_for_bar_chart);
+			*/
+		}
+
+		function loadSemesterMarks(semesterName, studentId, semesterYear, semesterClasse, semesterTurma) {
+			fetch(`/get_semester_marks_api/${semesterName}/${studentId}/${semesterYear}/${semesterClasse}/${semesterTurma}/`)
+				.then(res => res.json())
+				.then(data => {
+					// console.log(data);
+					
+					if (data.data_exists) {
+						highLightPresenceTr(semesterName);
+						createTestMarksTable(data); // .data, data.test_names, data.subjects, data.media_values);
+					} else {
+						let div = document.querySelector('.student-test-marks');
+						div.innerHTML = '';
+					}
+				})
+				.catch(err => console.error(err));
+		}
+	</script>
+{% endblock %}

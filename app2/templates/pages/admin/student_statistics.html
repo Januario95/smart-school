@@ -1,0 +1,522 @@
+{% extends "baseAdmin.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Estatistica dos Estudantes</title>
+{% endblock %}
+
+{% block style %}
+	<style>
+		.student-list {
+			display: flex;
+			flex-wrap: wrap;
+			width: 95%;
+			flex-direction: row;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin-top: 10px;
+			margin-bottom: 15px;
+		}
+		.filter-section {
+			width: 215px;
+			margin-top: 20px;
+			margin-right: 5px;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			/*box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);*/
+		}
+		.result-section {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			align-items: flex-start;
+			width: 65%;
+			/* border-top: 6px solid teal; */
+			padding: 5px 20px 20px 20px;
+			margin-top: 20px;
+			background-color: white;
+			border-radius: 15px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.options {
+			display: flex;
+			flex-wrap: wrap;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: flex-start;
+			padding: 10px;
+			width: 250px;
+			background-color: white;
+			border: 1px solid #ccc;
+			border-radius: 30px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		}
+		.options div {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 97%;
+			color: black;
+			margin-bottom: 0px;
+			padding-top: 3px;
+			padding-bottom: 10px;
+			padding-left: 8px;
+		}
+		.options:last-child {
+			border-bottom: none !important;
+		}
+		.options div label {
+			font-size: 12px;
+		}
+		.active-link-section {
+			background-color: #d1d5da;
+		}
+		.non-active-link-section {
+			background-color: #f6f6f7;
+		}
+		.row {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: flex-start;
+		}
+		.row-header {
+			font-size: 15px;
+			border-bottom: 3px solid teal;
+		}
+		.row span {
+			margin-bottom: 7px;
+		}
+		.no-filter-selection {
+			outline: 1px solid red;
+		}
+		select,
+		input[type="text"],
+		input[type="submit"],
+		#id_password {
+            height: 30px;
+            width: 96%;
+            border-radius: 17px;
+            border: 1px solid #ccc;
+            height: 33px;
+            text-align: center;
+            outline: none;
+        }
+		input[type="submit"] {
+			cursor: pointer;
+		}
+		select:focus,
+		input[type="text"]:focus,
+		input[type="submit"]:focus {
+			border: none;
+			outline: 2px solid lightblue;
+		}
+		.result-section table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.pos-neg {
+			font-size: 12px;
+		}
+		.test-col {
+			font-size: 14px;
+		}
+		.result-section th,
+		.result-section td {
+			border: 1px solid #ccc;
+			padding: 5px;
+		}
+		.result-section td {
+			font-size: 13px;
+		}
+		.gender {
+			font-weight: normal;
+		}
+		.link {
+			text-decoration: none;
+		}
+		#id_semester, #id_classe, #id_turma {
+			background-color: white;
+		}
+		.transitados-reprovados {
+			font-size: 14px;
+			color: #666;
+		}
+
+
+		.row-loader {
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.loader {
+			display: none;
+		  	border: 16px solid #f3f3f3;
+		  	border-radius: 50%;
+		  	border-top: 16px solid #3498db;
+		  	width: 80px;
+		  	height: 80px;
+		  	-webkit-animation: spin 1s linear infinite; /* Safari */
+		  	animation: spin 2s linear infinite;
+		}
+
+		/* Safari */
+		@-webkit-keyframes spin {
+		  	0% { -webkit-transform: rotate(0deg); }
+		  	100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+		.results-div {
+			display: none;
+			width: 100%;
+		}
+		.chart-div {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-around;
+			align-items: flex-start;
+			padding: 0px;
+		}
+		#myChart, #myChart2 {
+			padding: 0px;
+			margin: 0px;
+		}
+		@media only screen and (max-width: 898px) {
+			.result-section {
+				padding-bottom: 30px;
+			}
+			.result-section th,
+			.result-section td {
+				font-size: 10px;
+			}
+			.result-section th,
+			.result-section td {
+				padding: 2px 3px;
+			}
+		}
+		@media only screen and (max-width: 768px) {
+			.student-list {
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				width: 96%;
+				padding: 0px;
+				margin: 0px;
+			}
+			.result-section {
+				min-width: 430px;
+				padding: 10px 0px 30px 0px;
+				margin: 20px 0px;
+			}
+			.filter-section {
+				width: 100%;
+				justify-content: center;
+				align-items: center;
+			}
+			.result-section {
+				width: 80%;
+				justify-content: center;
+				align-items: center;
+			}
+			.result-section table {
+				min-width: 400px;
+			}
+			.options {
+				width: 50%;
+			}
+			.options div {
+				align-items: center;
+				justify-content: center;
+			}
+			.chart-div {
+				align-items: center;
+				justify-content: center;
+				padding: 0px;
+				margin: 0px;
+			}
+
+			select,
+			input[type="text"],
+			input[type="submit"],
+			#id_password {
+				margin-top: 3px;
+				width: 100%;
+				max-width: 250px;
+				height: 25px;
+			}
+
+			.pos-neg {
+				font-size: 10px;
+			}
+			.test-col {
+				font-size: 12px;
+			}
+			.result-section th,
+			.result-section td {
+				font-size: 10px;
+			}
+			.result-section th,
+			.result-section td {
+				padding: 2px 3px;
+			}
+		}
+	</style>
+{% endblock %}
+
+{% block inner_style %}
+{% endblock %}
+
+{% block content %}
+	<div class="student-list">
+		<div class="filter-section">
+			<form method="post" class="options">
+				<div href="#">
+					<label>Trimestre</label>
+					{{ form.semester }}
+				</div>
+				<div href="#">
+					<label>Classe</label>
+					{{ form.classe }}
+				</div>
+				<div href="#">
+					<label>Turma</label>
+					{{ form.turma }}
+				</div>
+				<div href="#">
+					{% csrf_token %}
+					<input type="submit" class="btn-mostrar" value="Mostrar Relatorio">
+				</div>
+			</form>
+		</div>
+
+		<div class="result-section">
+			<div class="row-loader">
+				<div class="loader"></div>
+			</div>
+			<div class="results-div">
+				<p style="text-align:center;margin-bottom:5px;">Percentagem de Positivas e Negativas</p>
+				<div class="row table-div" style="width:100%;margin-bottom:30px;">
+					<table>
+						<thead>
+							<tr>
+								<th rowspan="3">Disciplina</th>
+								<th colspan="6">Testes</th>
+							</tr>
+							<tr>
+								<th colspan="2" class="test-col">Test 1 (%)</th>
+								<th colspan="2" class="test-col">Test 2 (%)</th>
+								<th colspan="2" class="test-col">Test 3 (%) </th>
+							</tr>
+							<tr>
+								<th class="pos-neg">Positivas</th>
+								<th class="pos-neg">Negativas</th>
+								<th class="pos-neg">Positivas</th>
+								<th class="pos-neg">Negativas</th>
+								<th class="pos-neg">Positivas</th>
+								<th class="pos-neg">Negativas</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+				<div class="chart-div">
+					<div class="row">
+						<span class="transitados-reprovados"></span>
+						<div id="myChart" style="width:250px;height:250px;"></div>
+					</div>
+					<div class="row">
+						<span class="percent-title"></span>
+						<div id="myChart2" style="width:300px;height:330px;"></div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let currentURL = document.location.href;
+		let currentID = currentURL.split('/')[4];
+		let URLS = ['classe',
+					'turmas',
+					'semester'];
+
+		for (let url of URLS) {
+			let tag = $(`.${url}`);
+			url = `http://localhost:8000/${url}/${currentID}/`;
+			if (url === currentURL) {
+				tag.toggleClass('active-link-section');
+			} else {
+				tag.toggleClass('non-active-link-section');
+			}
+		}
+
+		let btnMostrar = document.querySelector('.btn-mostrar');
+		let semester = document.querySelector('#id_semester');
+		let classe = document.querySelector('#id_classe');
+		let turma = document.querySelector('#id_turma');
+		let noResults = document.querySelector('.no-results');
+		let transitaReprova = document.querySelector('.transitados-reprovados');
+		let percTitle = document.querySelector('.percent-title');
+		let resultDiv = document.querySelector('.results-div');
+		let tbody = document.querySelector('tbody');
+		let loader = document.querySelector('.loader');
+		let reprovados;
+		let transitados;
+		let chart;
+		let chart2;
+
+		function getMin(arr) {
+			let first = arr[0];
+			for (let val in arr) {
+				if (first > val) {
+					first = val;
+				}
+			}
+			return first;
+		}
+
+		function getMax(arr) {
+			let first = arr[0];
+			for (let val in arr) {
+				if (val > first) {
+					first = val;
+				}
+			}
+			return first;
+		}
+
+
+		function loadPieD3(data) {
+			var xArray = ["Transitados", "Reprovados"];
+			var yArray = [data.passed_students_perc, data.failed_students_perc];
+
+			// var layout = {title:"Transitados vs Reprovados"};
+
+			var data = [{
+				labels:xArray, 
+				values:yArray, 
+				type:"pie"
+			}];
+
+			Plotly.newPlot("myChart2", data);
+	    }
+
+		function displayBar(xTextNames, yTextMarks) {
+			let barColors = ['#22a7f0', 'red'];
+			let minVal = getMin(yTextMarks);
+			let maxVal = getMax(yTextMarks);
+
+			var data = [{
+			    x: xTextNames,
+			    y: yTextMarks,
+			    type: 'bar',
+			    marker: {
+			    	color: ['#22a7f0', 'rgb(255, 127, 14)']
+			  	}
+			}];
+			
+			var layout = {
+				title: "Transitados vs Reprovados",
+				autosize: false,
+		 		width: 350,
+			  	height: 320,
+		 	 	showlegend: false,
+		 		annotations: [
+		    		{
+			      		x: 0,
+			      		y: yTextMarks[0]+0.7,
+			      		xref: 'x',
+			      		yref: 'y',
+			      		text: yTextMarks[0],
+			      		showarrow: false,
+			      		arrowhead: 7,
+			    	},
+			    	{
+			      		x: 1,
+			      		y: yTextMarks[1]+0.7,
+			      		xref: 'x',
+			      		yref: 'y',
+			      		text: yTextMarks[1],
+			      		showarrow: false,
+			      		arrowhead: 7,
+			    	}
+			    ]
+			}
+			Plotly.newPlot('myChart', data, layout=layout);
+		}
+
+		function loadBar(xTextNames, yTextMarks) {
+			try {
+				chart.clear();
+				chart.empty();
+				displayBar(xTextNames, yTextMarks);
+				
+			} catch (err) {
+				displayBar(xTextNames, yTextMarks);
+			}
+		}
+
+		function createTable(data) {
+			tbody.innerHTML = '';
+
+			for (let row of data) {
+				let tr = document.createElement('tr');
+				tr.innerHTML = `
+					<td style="text-align:center;">${row.subject_name}</td>
+					<td style="text-align:center;">${row.subj_test_1_pos}</td>
+					<td style="text-align:center;">${row.subj_test_1_neg}</td>
+					<td style="text-align:center;">${row.subj_test_2_pos}</td>
+					<td style="text-align:center;">${row.subj_test_2_neg}</td>
+					<td style="text-align:center;">${row.subj_test_3_pos}</td>
+					<td style="text-align:center;">${row.subj_test_3_neg}</td>
+				`;
+				tbody.appendChild(tr);
+			}
+		}
+
+		btnMostrar.addEventListener('click', e => {
+			e.preventDefault();
+
+			// window.scrollTo(0, 0);
+			$(window).scrollTop(0);
+			loader.style.display = 'block';
+			resultDiv.style.display = 'none';
+
+			let url = `/student_pass_fail_stats/${semester.value}/${classe.value}/${turma.value}/`;
+			fetch(url)
+				.then(res => res.json())
+				.then(data => {
+					let subjectTestsPosNeg = data.subject_tests_pos_neg;
+					loader.style.display = 'none';
+					resultDiv.style.display = 'block';
+					createTable(subjectTestsPosNeg);
+
+					// console.log(subjectTestsPosNeg);
+					if ((data.passed_students === null) || 
+						(data.failed_students === null)) {
+					} else {
+						let names = ['Transitados', 'Reprovados'];
+						let marks = [data.passed_students, data.failed_students];
+						let percentages = [data.passed_students_perc, data.failed_students_perc];
+
+						loadBar(names, marks);
+						// loadPie(names, percentages);
+						loadPieD3(data);
+					}
+				})
+				.catch(err => console.log(err));
+		});
+	</script>
+{% endblock %}

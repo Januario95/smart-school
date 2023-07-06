@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title>Login</title>    
+
+	<style>
+		html, body {
+		    background-color: #46ACC2;
+		    font-family: 'Roboto', sans-serif;
+			padding: 0px;
+			margin: 0px;
+		}
+		.login-div {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 80px;
+		}
+		.form {
+			animation-name: launch;
+			animation-duration: 4s;
+			position: relative;
+			z-index: 1;
+			background: #FFFFFF;
+			max-width: 310px;
+			margin: 0 auto 100px;
+			padding: 20px;
+			text-align: center;
+			border-radius: 20px;
+			box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+		}
+		.form input[type="text"],
+		.form input[type="password"] {
+			outline: 0;
+			background: #f2f2f2;
+			width: 100%;
+			border: 0;
+			text-align: center;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			border-radius: 16px;
+			box-sizing: border-box;
+			font-size: 14px;
+		}
+		.form input[type="submit"] {
+			text-transform: uppercase;
+			outline: 0;
+			/* background: #FF6229; */
+			background-color: #46ACC2;
+			width: 100%;
+			border: 0;
+			margin-top: 8px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			color: #FFFFFF;
+			font-size: 14px;
+			border-radius: 16px;
+			-webkit-transition: all 0.3 ease;
+			transition: all 0.3 background-color;
+			cursor: pointer;
+		}
+		.form input[type="submit"]:hover,.form input[type="submit"]:active,.form input[type="submit"]:focus {
+			/* background: #FF5415; */
+			background-color: #50c7e1;
+		}
+		.form .message {
+			margin: 15px 0 0;
+			color: #b3b3b3;
+			font-size: 16px;
+		}
+		.form .message a {
+			color: #FF7F50;
+			text-decoration: none;
+		}
+		.form .login-form {
+			display: none;
+		}
+		.password-div {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			background: #f2f2f2;
+			border-radius: 16px;
+		}
+		.fa {
+			margin-right: 10px;
+			cursor: pointer;
+			font-size: 15px;
+		}
+		.chBox2 {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="login-div">
+	 	<form method="post" class="form">
+			<div>
+				<label for="id_username">Nome do usuario</label>
+				{{ form.username }}
+			</div>
+			<div>
+				<label for="id_password">Password</label>
+				<div class="password-div">
+					{{ form.password }}
+					<i class="fa chBox">&#xf06e;</i>
+					<i class="fa fa-eye-slash chBox2" aria-hidden="true"></i>
+				</div>
+			</div>
+	 		{% csrf_token %}
+			<!--
+	 		<div class="show-hide-password">
+	 			<span>Show password</span>
+				<input type="checkbox" class="chBox">	 			
+	 		</div>
+			-->
+	 		<input type="submit" value="Login">
+	 		<!--<span>&#128065;</span>-->
+	 		<span class="sign-in-link">Not registered? <a href="{% url 'app2:register' %}">Create an account</a></span>
+	 	</form>
+	 </div>
+
+	<script>
+		let idUsername = document.querySelector('#id_username');
+		id_username.focus();
+		let idPassword = document.querySelector('#id_password');
+		let chBox = document.querySelector('.chBox');
+		let chBox2 = document.querySelector('.chBox2');
+
+		showHidePassword(chBox, chBox2);
+		showHidePassword(chBox2, chBox);
+
+		function showHidePassword(tag1, tag2) {
+			tag1.addEventListener('click', e => {
+				tag1.style.display = 'none';
+				tag2.style.display = 'block';
+				togglePasswordVisibility();
+			});
+		}
+
+		function togglePasswordVisibility() {
+			if (idPassword.type === 'password') {
+				idPassword.type = 'text';
+			} else {
+				idPassword.type = 'password';
+			}
+		}
+	</script>
+</body>
+</html>

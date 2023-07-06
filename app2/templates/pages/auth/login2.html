@@ -1,0 +1,108 @@
+{% extends "baseAdmin.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Login</title>    
+{% endblock %}
+
+{% block style %}
+	<style>
+		.login-div {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin-top: 80px;
+		}
+		.form {
+			animation-name: launch;
+			animation-duration: 4s;
+			position: relative;
+			z-index: 1;
+			background: #FFFFFF;
+			max-width: 310px;
+			margin: 0 auto 100px;
+			padding: 45px;
+			text-align: center;
+			border-radius: 20px;
+			box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+		}
+		.form input[type="text"],
+		.form input[type="password"] {
+			outline: 0;
+			background: #f2f2f2;
+			width: 100%;
+			border: 0;
+			text-align: center;
+			margin: 0 0 15px;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			border-radius: 16px;
+			box-sizing: border-box;
+			font-size: 14px;
+		}
+		.form input[type="submit"] {
+			text-transform: uppercase;
+			outline: 0;
+			background: #FF6229;
+			width: 100%;
+			border: 0;
+			padding-top: 10px;
+			padding-bottom: 10px;
+			color: #FFFFFF;
+			font-size: 14px;
+			border-radius: 16px;
+			-webkit-transition: all 0.3 ease;
+			transition: all 0.3 ease;
+			cursor: pointer;
+		}
+		.form input[type="submit"]:hover,.form input[type="submit"]:active,.form input[type="submit"]:focus {
+			background: #FF5415;
+		}
+		.form .message {
+			margin: 15px 0 0;
+			color: #b3b3b3;
+			font-size: 16px;
+		}
+		.form .message a {
+			color: #FF7F50;
+			text-decoration: none;
+		}
+		.form .login-form {
+			display: none;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="login-div">
+	 	<form method="post" class="form">
+	 		{{ form }}
+	 		{% csrf_token %}
+
+	 		<div class="show-hide-password">
+	 			<span>Show password</span>
+				<input type="checkbox" class="chBox">	 			
+	 		</div>
+	 		<input type="submit" value="Login">
+	 		<!--<span>&#128065;</span>-->
+	 		<span class="sign-in-link">Not registered? <a href="{% url 'app2:register' %}">Create an account</a></span>
+	 	</form>
+	 </div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let idUsername = document.querySelector('#id_username');
+		id_username.focus();
+		let idPassword = document.querySelector('#id_password');
+		let chBox = document.querySelector('.chBox');
+		chBox.addEventListener('click', e => {
+			if (idPassword.type === 'password') {
+				idPassword.type = 'text';
+			} else {
+				idPassword.type = 'password';
+			}
+		});
+	</script>
+{% endblock %}

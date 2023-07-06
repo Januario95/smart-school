@@ -1,0 +1,543 @@
+{% extends "pages/admin/teacher_list_details.html" %}
+{% load format_words %}
+
+{% block title %}
+	<title>Detalhes de professores</title>
+{% endblock %}
+
+{% block inner_style %}
+	<style>
+		.semester-div {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: space-between;	
+		}
+		.semester-header {
+			color: white;
+			font-weight: bold;
+			padding: 4px;
+			border-top-left-radius: 16px;
+			border-top-right-radius: 16px;
+			background-color: #46ACC2;
+			font-size: 13px;
+		}
+		.semester-div-row {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: space-around;
+		}
+		.highlight-semester {
+			/* background-color: goldenrod; */
+			background-color: #f1eaea;
+		}
+		.table-div {
+			width: 100%;
+			overflow-y: scroll;
+			max-height: 200px;
+		}
+		.student-name-header {
+			margin-top: 10px;
+		}
+		.active-link-student {
+			font-weight: bold;
+			background-color: #d1d5da !important;
+		}
+		.active-sublink-student {
+			color: white !important;
+			/*font-weight: bold;*/
+			background-color: #46ACC2 !important;
+		}
+		.center-div {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+	</style>
+{% endblock %}
+
+{% block student_details %}
+	<div class="student-detail">
+		<div class="student-filter-section">
+			<a class="professores-detalhes-dados-pessoais" href="{% url 'app2:teacher_personal_details' teacher.pk %}" style="border-top-left-radius:35px;border-bottom-left-radius:35px;">Dados Pessoais</a>
+			<a class="professores-detalhes-dados-escolares" href="{% url 'app2:teacher_school_details' teacher.pk %}">Detalhes Escolares</a>
+			<a class="professores-detalhes-disciplinas" href="{% url 'app2:teacher_subject_details' teacher.pk %}">Disciplinas Lecionadas</a>
+			<a class="professores-adicionar-disciplina" href="{% url 'app2:teacher_add_subject' teacher.pk %}" style="border-top-right-radius:35px;border-bottom-right-radius:35px;">Adicionar Disciplina</a>
+		</div>
+		<h4 class="student-name-header">Professor: {{ teacher }}</h4>
+		<div class="student-info-section">
+			{% block student_form %}
+			{% endblock %}
+
+			{% block student_data %}
+			{% endblock %}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+		let urls2 = ['professores-detalhes-dados-pessoais', 'professores-detalhes-dados-escolares',
+					 'professores-detalhes-disciplinas', 'professores-adicionar-disciplina'];
+
+		let activeURL = window.location.href.split('/');
+		let activeUrlID = activeURL[4];
+		
+		checkActiveLink2();
+		function checkActiveLink2() {
+			for (let url of urls2) {
+				let u = localhost + url + `/${activeUrlID}/`;
+				u = u.split('/')[3]
+				u = u.split('detalhes')[0]
+				u += 'detalhes';
+				// console.log(u);
+				
+				let currentURL = document.querySelector(`.${url}`);
+				if (localhost + url + `/${activeUrlID}/` === window.location.href) {
+					currentURL.classList.add('active-sublink-student');
+					let header = document.querySelector('.professores');
+					header.classList.add('active-link');
+
+					let headerLeft = document.querySelector('.estudantes-detalhes');
+					headerLeft.classList.add('active-link-student');
+				} else {
+					currentURL.classList.remove('active-sublink-student');
+				}
+			}
+		}
+
+		function createTable(data, NrOfStudents, semesterId, studentId, semesterName, semesterYear, semesterClasse, semesterTurma) {
+			let div = document.querySelector('.student-subjects');
+			div.innerHTML = '';
+			div.classList.add('center-div');
+
+			let title = document.createElement('h5');
+			title.textContent = `Total: ${NrOfStudents} estudantes da ${ semesterClasse }, Turma ${ semesterTurma },
+								 ${ semesterName } Semestre de ${ semesterYear }`;
+			div.appendChild(title);
+			
+			if (data.length > 1) {
+				let table = document.createElement('table');
+				table.style.marginTop = '5px';
+				let thead = document.createElement('thead');
+				thead.innerHTML += `
+					<tr>
+						<th style="border-top-left-radius:16px;">#</th>
+						<th>Primeiro nome</th>
+						<th>Ultimo nome</th>
+						<th style="border-top-right-radius:16px;">Email</th>
+					</tr>
+				`;
+				table.appendChild(thead);
+				let tbody = document.createElement('tbody');
+				let index = 1;
+				for (let row of data) {
+					let tr = document.createElement('tr');
+					tr.style.borderBottom = '1px solid #ccc';
+					tr.classList.add("ver-presencas");
+					tr.classList.add(`ver-presencas-${ row.subject_pk }`);
+					tr.innerHTML += `
+						<td style="text-align:center;">${ index }</td>
+						<td style="text-align:center;display:flex;align-items:center;justify-content:center;">
+							<a href="/estudantes-detalhes-dados-pessoais/${ row.id }/">${ row.first_name }</a>
+						</td>
+						<td style="text-align:center;">${ row.last_name }</td>
+						<td style="text-align:center;">${ row.email }</td>
+					`;
+					index += 1;
+					tbody.appendChild(tr);
+				}
+				table.appendChild(tbody);
+				div.appendChild(table);
+			} else {
+				let p = document.createElement('p');
+				p.textContent = 'Nenhuma actividade academica encontrada';
+				p.style.textAlign = 'center';
+				p.style.fontSize = '13px';
+				div.appendChild(p);
+			}
+		}
+		function loadPieD3(days_attended, days_missed) {
+			var xArray = ["Participou", "Faltou"];
+			var yArray = [parseFloat(days_attended), parseFloat(days_missed)];
+			var layout = {
+				// title:"Participou vs Faltou"
+			};
+			var data = [{
+				labels:xArray, 
+				values:yArray, 
+				type:"pie",
+				hovertemplate: '<i>%{y} dias</i>',
+			}];
+
+			Plotly.newPlot("myChart2", data, layout);
+	    }
+
+		function loadBar(days_attended, days_missed, subject_name) {
+			var xArray = ["Participou", "Faltou"];
+			var yArray = [parseFloat(days_attended), parseFloat(days_missed)];
+			let barColors = ['#22a7f0', 'red'];
+
+			var data = [{
+				x: xArray,
+				y: yArray,
+				type: 'bar',
+				marker: {color: ['#22a7f0', 'rgb(255, 127, 14)']},
+				hovertemplate: '<i>%{y} dias</i>',
+			}];
+			
+			var layout = {
+				title: `Participacao nas Aulas de ${ subject_name }`,
+				autosize: true,
+				width: 400,
+				height: 350,
+				showlegend: false,
+				yaxis: {
+					title: {
+						text: 'Dias',
+						font: {
+							size: 12,
+							// color: '#7f7f7f'
+						}
+					}
+				},
+				annotations: [
+		    		{
+			      		x: 0,
+			      		y: yArray[0]+0.7,
+			      		xref: 'x',
+			      		yref: 'y',
+			      		text: yArray[0],
+			      		showarrow: false,
+			      		arrowhead: 7,
+			    	},
+			    	{
+			      		x: 1,
+			      		y: yArray[1]+0.7,
+			      		xref: 'x',
+			      		yref: 'y',
+			      		text: yArray[1],
+			      		showarrow: false,
+			      		arrowhead: 7,
+			    	}
+			    ]
+			}
+			Plotly.newPlot('myChart', data, layout=layout);
+	    }
+
+		function createAttendanceTable(data) {
+			let subject_name = data.subject_name;
+			let days_attended = data.days_attended;
+			let days_missed = data.days_missed;
+			data = data.data;
+
+			let div = document.querySelector('.student-attendance');
+			div.innerHTML = '';
+			div.style.marginTop = '15px';
+
+			let myChart = document.createElement('div');
+			myChart.setAttribute('id', 'myChart')
+			div.appendChild(myChart);
+			loadBar(days_attended, days_missed, subject_name);
+			
+			let myChart2 = document.createElement('div');
+			myChart2.style.width = '300px';
+			myChart2.style.height = '320px';
+			myChart2.setAttribute('id', 'myChart2')
+			div.appendChild(myChart2);
+			loadPieD3(days_attended, days_missed);
+
+			let tableDiv = document.createElement('div');
+			tableDiv.classList.add('table-div');
+
+			if (data.length > 1) {
+				let table = document.createElement('table');
+				let thead = document.createElement('thead');
+				thead.innerHTML += `
+					<tr>
+						<th>#</th>
+						<th>Participou</th>
+						<th>Data</th>
+						<th>Hora</th>
+					</tr>
+				`;
+				table.appendChild(thead);
+				let tbody = document.createElement('tbody');
+				let index = 1;
+				for (let row of data) {
+					let tr = document.createElement('tr');
+					tr.style.borderBottom = '1px solid #ccc';
+					let attended = document.createElement('span');
+					if (row.is_present) {
+						attended = `<span style="font-weight:bold;color:teal;">Sim</span>`;
+					} else {
+						attended = `<span style="font-weight:bold;color:red;">Nao</span>`;
+					}
+					
+					tr.innerHTML += `
+						<td style="text-align:center;">${ index }</td>
+						<td style="text-align:center;display:flex;align-items:center;justify-content:center;">
+							${ attended }
+						</td>
+						<td style="text-align: center;">${ row.date }</td>
+						<td style="text-align: center;">${ row.time }</td>
+					`;
+					index += 1;
+					tbody.appendChild(tr);
+				}
+				table.appendChild(tbody);
+				tableDiv.appendChild(table);
+				div.appendChild(tableDiv);
+			} else {
+				let p = document.createElement('p');
+				p.textContent = 'Nenhuma actividade academica encontrada';
+				p.style.textAlign = 'center';
+				p.style.fontSize = '13px';
+				div.appendChild(p);
+			}
+		}
+
+		function highLightPresenceTr(subjectId) {
+			let trs = document.querySelectorAll('.ver-presencas');
+			for (let tag of trs) {
+				tag.classList.remove('highlight-semester');
+			}
+			let tr = $(`.ver-presencas-${ subjectId }`);
+			tr.toggleClass('highlight-semester');
+		}
+		
+		function loadAttendanceInfo(semesterId, teacherId, studentId, subjectId, semesterYear, semesterClasse, semesterTurma) {
+			highLightPresenceTr(subjectId);
+
+			fetch(`/get_attendance/${semesterId}/${teacherId}/${studentId}/${subjectId}/${semesterYear}/${semesterClasse}/${semesterTurma}/`)
+				.then(res => res.json())
+				.then(data => {
+					console.log(data);
+					// let values = data.data;
+					createAttendanceTable(data);
+				})
+				.catch(err => console.error(err));
+		}
+
+		function highLightTr(semesterId) {
+			let trs = document.querySelectorAll('.semester-tr');
+			for (let tag of trs) {
+				tag.classList.remove('highlight-semester');
+			}
+			let tr = $(`.semester-tr-${ semesterId }`);
+			tr.toggleClass('highlight-semester');
+		}
+
+		function getMin(arr) {
+			let first = arr[0];
+			for (let val in arr) {
+				if (first > val) {
+					first = val;
+				}
+			}
+			return first;
+		}
+
+		function getMax(arr) {
+			let first = arr[0];
+			for (let val in arr) {
+				if (val > first) {
+					first = val;
+				}
+			}
+			return first;
+		}
+
+		function loadAttendanceOverallInfo(data) {
+			let div = document.querySelector('.student-attendance-overall');
+			div.innerHTML = '';
+
+			let myBarChart = document.createElement('div');
+			myBarChart.setAttribute('id', 'myBarChart');
+
+			let pieChart = document.createElement('div');
+			pieChart.setAttribute('id', 'pieChart');
+
+			let pieChart2 = document.createElement('div');
+			pieChart2.style.marginBottom = '10px';
+			pieChart2.setAttribute('id', 'pieChart2');
+
+			div.appendChild(myBarChart);
+			div.appendChild(pieChart);
+			div.appendChild(pieChart2);
+
+			let is_not_present_vals = data.is_not_present_vals;
+			let is_present_vals = data.is_present_vals;
+			let subjects = data.subjects;
+			// let maxVal = getMax(is_not_present_vals);
+			let maxVal = is_not_present_vals[0] + is_present_vals[0];
+
+			var trace1 = {
+				x: subjects,
+				y: is_present_vals,
+				name: 'Participou',
+				type: 'bar',
+				hovertemplate: '<i>Participou: %{y}</i>',
+			};
+
+			var trace2 = {
+				x: subjects,
+				y: is_not_present_vals,
+				name: 'Faltou',
+				type: 'bar',
+				hovertemplate: '<i>Faltou: %{y}</i>',
+			};
+
+			var data = [trace1, trace2];
+			var layout = {
+				title: 'Total de Presencas e Faltas',
+				barmode: 'stack',
+				width: 500,
+				height: 400,
+				legend: {
+					x: 0, y: maxVal + 2,
+					// "orientation": "v",
+				},
+				hovermode: 'x'
+			};
+			Plotly.newPlot('myBarChart', data, layout);
+
+			/*
+			var data = [
+				{
+					labels: subjects, 
+					values: is_present_vals, 
+					type:"pie"
+				},
+				{
+					labels: subjects, 
+					values: is_not_present_vals, 
+					type:"pie"
+				}
+			];
+			var layout = {
+				title: 'Presencas',
+				width: 350,
+				height: 350,
+				legend: {
+					// x: 0, y: maxVal + 2,
+				},
+				hovermode: 'x'
+			};
+			Plotly.newPlot('pieChart', data, layout);
+
+
+			var data = [
+			{
+				labels: subjects, 
+				values: is_not_present_vals, 
+				type:"pie"
+			}];
+			var layout = {
+				title: 'Faltas',
+				width: 350,
+				height: 350,
+				legend: {
+					// x: 0, y: maxVal + 2,
+				},
+				hovermode: 'x'
+			};
+			Plotly.newPlot('pieChart2', data, layout);
+			*/
+
+
+			var data = [
+				{
+					values: is_present_vals,
+					labels: subjects,
+					domain: {column: 0},
+					name: 'Presente',
+					hoverinfo: 'label+percent+name',
+					// textposition: "outside",
+					hole: .4,
+					type: 'pie'
+				},
+				{
+					values: is_not_present_vals,
+					labels: subjects,
+					text: 'CO2',
+					textposition: 'inside',
+					domain: {column: 1},
+					name: 'Ausente',
+					hoverinfo: 'label+percent+name',
+					hole: .4,
+					type: 'pie'
+				}
+			];
+
+			var layout = {
+				title: 'Presencas vs Faltas',
+				annotations: [
+					{
+						font: {
+							size: 13
+						},
+						showarrow: false,
+						text: 'Presencas',
+						x: 0.16,
+						y: 0.5
+					},
+					{
+						font: {
+							size: 13
+						},
+						showarrow: false,
+						text: 'Faltas',
+						x: 0.81,
+						y: 0.5
+					}
+				],
+				height: 400,
+				width: 600,
+				showlegend: true,
+				legend: {
+					"orientation": "h",
+				},
+				grid: {rows: 1, columns: 2},
+			};
+			Plotly.newPlot('pieChart2', data, layout);
+		}
+
+		function loadSemesterInfo(semesterId, studentId, semesterYear, semesterClasse, semesterTurma, semesterName) {
+			// console.log(semesterYear, semesterClasse, semesterTurma);
+			let div = document.querySelector('.student-attendance');
+			div.innerHTML = '';
+			highLightTr(semesterId);
+			
+			/*
+			fetch(`/get_semester_attendance_api/${semesterName}/${studentId}/${semesterYear}/${semesterClasse}/${semesterTurma}/`)
+				.then(res => res.json())
+				.then(data => {
+					// console.log(data.data);
+					// console.log(data.data_exists);
+					if (data.data_exists) {
+						loadAttendanceOverallInfo(data.data);
+					} else {
+						let div = document.querySelector('.student-attendance-overall');
+						div.innerHTML = '';
+					}
+				})
+				.catch(err => console.error(err));
+			*/
+
+			fetch(`/get_teacher_semester_info/${semesterName}/${semesterYear}/${semesterClasse}/${semesterTurma}/`)
+				.then(res => res.json())
+				.then(data => {
+					let values = data.data;
+					// console.log(data.students);
+					let NrOfStudents = data.students.length;
+					createTable(data.students, NrOfStudents, semesterId, studentId, semesterName, 
+								semesterYear, semesterClasse, semesterTurma);
+				})
+				.catch(err => console.error(err))
+		}
+	</script>
+{% endblock %}
